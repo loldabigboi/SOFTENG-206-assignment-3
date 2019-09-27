@@ -15,10 +15,8 @@ import javafx.concurrent.Task;
 class Wiki extends Task<String>{
 	private String _key;
 	private List<String> _fulltext = new ArrayList<String>();
-<<<<<<< HEAD
 	private MainPage main = new MainPage();
-=======
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+
 
 	public Wiki(String keyword) {
 		_key = keyword;	
@@ -32,22 +30,21 @@ class Wiki extends Task<String>{
 		ProcessBuilder pk = new ProcessBuilder("bash", "-c", command);
 		Process process = pk.start();
 		BufferedReader text = new BufferedReader(new InputStreamReader(process.getInputStream()));
-<<<<<<< HEAD
+
 		
 		String wikiText = "";
 		String line;
 
 		while ((line = text.readLine()) != null){
-=======
-		String line = text.readLine();
 
-		while (line != null){
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+//		String line = text.readLine();
+//
+//		while (line != null){
 			// If Input is invalid, call the alert
 			if(line.contains(" not found :^(")) {
 				Invalidkeyword i = new Invalidkeyword();
 				Platform.runLater(i);
-<<<<<<< HEAD
+
 			}
 			else {
 				wikiText += line;
@@ -83,43 +80,42 @@ class Wiki extends Task<String>{
 			}
 		}
 		return wikiText.trim();
-=======
-				line = text.readLine();
-			}
-			else {
-
-				File file = new File("fake"+_key + ".txt");
-				List<String> content = new ArrayList<String>();
-				content.add(line);
-
-				//split text into lines
-				String[] outputText = content.get(0).split("(?<=[a-z])\\.\\s+");
-
-				int numofLine = outputText.length;
-				for(int i = 0; i < numofLine; i++) {
-					_fulltext.add((i+1)  + ". " + outputText[i]+ "\n");
-				}
-				
-				FileWriter fw = new FileWriter(file);
-				BufferedWriter bw = new BufferedWriter(fw);
-				for(int i = 0; i < numofLine; i++) {
-					bw.write((i+1)  + ". " + outputText[i]+ "\n");	  	
-				}
-				bw.close();  
-				line = null;
-				Validkeyword j = new Validkeyword(_fulltext);
-				Platform.runLater(j);
-
-				//Delete useless file
-				String deletecommand = "rm -f " + file;
-				ProcessBuilder delc = new ProcessBuilder("bash", "-c", deletecommand);
-				Process dec = delc.start();
-				dec.waitFor();
-
-			}
-		}
-		return null;
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+//				line = text.readLine();
+//			}
+//			else {
+//
+//				File file = new File("fake"+_key + ".txt");
+//				List<String> content = new ArrayList<String>();
+//				content.add(line);
+//
+//				//split text into lines
+//				String[] outputText = content.get(0).split("(?<=[a-z])\\.\\s+");
+//
+//				int numofLine = outputText.length;
+//				for(int i = 0; i < numofLine; i++) {
+//					_fulltext.add((i+1)  + ". " + outputText[i]+ "\n");
+//				}
+//				
+//				FileWriter fw = new FileWriter(file);
+//				BufferedWriter bw = new BufferedWriter(fw);
+//				for(int i = 0; i < numofLine; i++) {
+//					bw.write((i+1)  + ". " + outputText[i]+ "\n");	  	
+//				}
+//				bw.close();  
+//				line = null;
+//				Validkeyword j = new Validkeyword(_fulltext);
+//				Platform.runLater(j);
+//
+//				//Delete useless file
+//				String deletecommand = "rm -f " + file;
+//				ProcessBuilder delc = new ProcessBuilder("bash", "-c", deletecommand);
+//				Process dec = delc.start();
+//				dec.waitFor();
+//
+//			}
+//		}
+//		return null;
+//>>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
 	}
 }
 

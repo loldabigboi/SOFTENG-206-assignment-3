@@ -245,30 +245,21 @@ public class WikiCreationMenu {
 		rootLayout.getChildren().setAll(menuLayout);
 		
 		Scene scene = new Scene(rootLayout);	
-<<<<<<< HEAD
 		//System.out.println("HIIIII");
-=======
-		
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+
 		Stage window = new Stage();
 		window.initOwner(parentStage);
 		window.initModality(Modality.APPLICATION_MODAL);
 		window.setScene(scene);
-<<<<<<< HEAD
 		//System.out.println("HIIIII");
 		window.sizeToScene();
 		//System.out.println("HIIIII");
-=======
+
 		window.sizeToScene();
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
 		window.show();
 		window.setMinWidth(window.getWidth());
 		window.setMinHeight(window.getHeight());
-		
-<<<<<<< HEAD
-		
-=======
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+
 	}
 	
 	private static void saveAudioFile(String text, String name) {
@@ -349,8 +340,4 @@ public class WikiCreationMenu {
 			"\n" + 
 			"Etiam quis egestas turpis, in consequat diam. Donec ut varius nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id lorem eu velit porttitor efficitur. In consequat vel risus non porta. Quisque nec diam sed justo pellentesque varius. Proin accumsan porttitor orci. Donec ac odio quis nunc congue venenatis a congue augue.";
 
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443

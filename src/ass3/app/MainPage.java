@@ -107,11 +107,9 @@ public class MainPage extends Application{
 	private ListView<String> l = new ListView<String>();
 	
 	private List<String> f = new ArrayList<String>();
-<<<<<<< HEAD
 	
 	private Stage _primary = new Stage();
-=======
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+
 	public MainPage(){
 		_wikibutton = new Button("Search");
 		_creationbutton = new Button("Search");
@@ -123,20 +121,15 @@ public class MainPage extends Application{
 		_delete = new Button("Delete");
 		_play = new Button("Play");
 	}
-<<<<<<< HEAD
+
 	
-	public Stage getStage() {
-		return _primary;
-	}
+
+
+
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		_primary = primaryStage;
-=======
 
-	@Override
-	public void start(Stage primaryStage) throws Exception {
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
 	//	File dir = new File(System.getProperty("user.dir"));
 		dir.mkdir();
 		AnchorPane pane = new AnchorPane();
@@ -280,12 +273,11 @@ public class MainPage extends Application{
 						else {
 						_txt = _wikisearch.getText();
 						Wiki wiki = new Wiki(_txt);
-<<<<<<< HEAD
+
 						wiki.setOnSucceeded((e) -> {
 							WikiCreationMenu.createWindow(primaryStage, wiki.getValue());
 						});
-=======
->>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+
 						try { 
 							Thread w = new Thread(wiki);
 							w.start();
