@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 package ass3.app;
 
 import java.io.BufferedReader;
@@ -9,11 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-<<<<<<< HEAD
-import java.util.ArrayList;
-import java.util.List;
-=======
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 
 import ass3.app.tasks.CreateAudioFileTask;
 import javafx.collections.FXCollections;
@@ -22,11 +13,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-<<<<<<< HEAD
-import javafx.geometry.Pos;
-=======
 
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -35,10 +22,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-<<<<<<< HEAD
-import javafx.scene.control.ListView;
-=======
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Separator;
@@ -57,15 +40,9 @@ import javafx.stage.Stage;
 
 public class WikiCreationMenu {
 	
-<<<<<<< HEAD
-	private static final ListView<AudioFileHBoxCell> audioListView = new ListView<AudioFileHBoxCell>();
-	private static MediaPlayer currentAudioPreview = null;
-	
-=======
 	private static MediaPlayer currentAudioPreview = null;
 	
 	private static VBox scrollContentPane;
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 	
 	public static void createWindow(Stage parentStage, String wikiText) {
 				
@@ -211,26 +188,16 @@ public class WikiCreationMenu {
 																	ButtonType.YES, ButtonType.NO);
 					alert.setHeaderText("File with that name already exists");
 					alert.showAndWait();
-<<<<<<< HEAD
-					if (alert.getResult() != ButtonType.YES) {
-						return;
-=======
 					if (alert.getResult() == ButtonType.YES) {
 						
 						saveAudioFile(wikiTextArea.getSelectedText(), audioNameField.getText());
 						
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 					}
 				}
 				
 			} catch (InterruptedException | IOException ex) {
 				ex.printStackTrace();
 			}
-<<<<<<< HEAD
-			
-			saveAudioFile(wikiTextArea.getSelectedText(), audioNameField.getText());
-=======
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 		
 			
 		});
@@ -251,9 +218,6 @@ public class WikiCreationMenu {
 		creationLayout.setMaxWidth(350);
 		VBox.setVgrow(creationLayout, Priority.ALWAYS);
 		
-<<<<<<< HEAD
-		updateAudioFileList();
-=======
 		ScrollPane audioScrollPane = new ScrollPane();
 		VBox.setVgrow(audioScrollPane, Priority.ALWAYS);
 		
@@ -263,7 +227,6 @@ public class WikiCreationMenu {
 		audioScrollPane.setContent(scrollContentPane);
 		audioScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
 		VBox.setVgrow(audioScrollPane, Priority.ALWAYS);
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 		
 		TextField creationNameField = new TextField();
 		creationNameField.setPromptText("Creation name..");
@@ -274,47 +237,24 @@ public class WikiCreationMenu {
 		HBox saveLayout = new HBox(10);
 		saveLayout.getChildren().setAll(creationNameField, saveCreationButton);
 		
-<<<<<<< HEAD
-		creationLayout.getChildren().setAll(audioListView, saveLayout);
-=======
 		creationLayout.getChildren().setAll(audioScrollPane, saveLayout);
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 				
 		// END CREATION MENU LAYOUT //
 		
 		menuLayout.getChildren().setAll(editorLayout, horizSeparator, creationLayout);
 		rootLayout.getChildren().setAll(menuLayout);
 		
-<<<<<<< HEAD
-		
-		
 		Scene scene = new Scene(rootLayout);	
 		
-=======
-		Scene scene = new Scene(rootLayout);	
-		//System.out.println("HIIIII");
-
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 		Stage window = new Stage();
 		window.initOwner(parentStage);
 		window.initModality(Modality.APPLICATION_MODAL);
 		window.setScene(scene);
-<<<<<<< HEAD
-=======
-		//System.out.println("HIIIII");
-		window.sizeToScene();
-		//System.out.println("HIIIII");
-
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 		window.sizeToScene();
 		window.show();
 		window.setMinWidth(window.getWidth());
 		window.setMinHeight(window.getHeight());
-<<<<<<< HEAD
 		
-=======
-
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 	}
 	
 	private static void saveAudioFile(String text, String name) {
@@ -322,11 +262,7 @@ public class WikiCreationMenu {
 		Task<String> audioTask = new CreateAudioFileTask(text, name);
 		audioTask.setOnSucceeded((e) -> {
 
-<<<<<<< HEAD
-			updateAudioFileList();
-=======
 			updateAudioFileList("");
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 
 		});
 		
@@ -342,15 +278,9 @@ public class WikiCreationMenu {
 		
 	}
 	
-<<<<<<< HEAD
-	private static void updateAudioFileList() {
-				
-		String cmd = "ls audio/ | grep \".wav\"";
-=======
 	private static void updateAudioFileList(String searchTerm) {
 		
 		String cmd = "ls audio/ | grep \"" + searchTerm + "\"";
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 		try {
 			
 			ProcessBuilder builder = new ProcessBuilder("bash", "-c", cmd);
@@ -359,20 +289,6 @@ public class WikiCreationMenu {
 			InputStream stdout = process.getInputStream();
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stdout));
 			
-<<<<<<< HEAD
-			List<AudioFileHBoxCell> list = new ArrayList<AudioFileHBoxCell>();
-			
-			String fileName;
-			while ((fileName = bufferedReader.readLine()) != null) {
-				
-				list.add(new AudioFileHBoxCell(fileName));
-				
-			}
-			
-			ObservableList<AudioFileHBoxCell> observableList = FXCollections.observableList(list);
-			audioListView.setItems(observableList);
-			
-=======
 			String fileName;
 			while ((fileName = bufferedReader.readLine()) != null) {
 				
@@ -381,62 +297,12 @@ public class WikiCreationMenu {
 				
 			}
 			
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 	}
 	
-<<<<<<< HEAD
-	
-	private static class AudioFileHBoxCell extends HBox {
-		
-		Label nameLabel;
-		Pane spacer;
-		Button playButton, deleteButton;
-		
-		public AudioFileHBoxCell(String fileName) {
-			
-			super(10);
-			this.setPadding(new Insets(3));
-			this.setAlignment(Pos.CENTER_LEFT);
-			
-			nameLabel = new Label(fileName);
-			
-			spacer = new Pane();
-			HBox.setHgrow(spacer, Priority.ALWAYS);
-			
-			playButton = new Button("Play");
-			playButton.setOnAction((e) -> {
-				Media audio = new Media(new File("audio/" + fileName).toURI().toString());
-				if (currentAudioPreview != null) {
-					currentAudioPreview.stop();
-				}
-				currentAudioPreview = new MediaPlayer(audio);
-				currentAudioPreview.setOnError(() -> {
-					System.out.println("help");
-				});
-				currentAudioPreview.play();
-			});
-			
-			deleteButton = new Button("Delete");
-			deleteButton.setOnAction((e) -> {
-				
-				ProcessBuilder builder = new ProcessBuilder("rm", "audio/" + fileName);
-				try {
-					builder.start().waitFor();
-				} catch (InterruptedException | IOException e_) {
-					e_.printStackTrace();
-				}
-				updateAudioFileList();
-				
-			});
-			
-			this.getChildren().setAll(nameLabel, spacer, playButton, deleteButton);
-			
-		}
-=======
 	private static HBox createAudioMenuItem(String name, String dateModified) {
 		
 		Label nameLabel = new Label(name),
@@ -455,7 +321,6 @@ public class WikiCreationMenu {
 		menuItem.getChildren().setAll(labelContainer, spacer, playButton, deleteButton);
 		
 		return menuItem;
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 		
 	}
 	
@@ -470,8 +335,4 @@ public class WikiCreationMenu {
 			"\n" + 
 			"Etiam quis egestas turpis, in consequat diam. Donec ut varius nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id lorem eu velit porttitor efficitur. In consequat vel risus non porta. Quisque nec diam sed justo pellentesque varius. Proin accumsan porttitor orci. Donec ac odio quis nunc congue venenatis a congue augue.";
 
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13

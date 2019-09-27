@@ -29,12 +29,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -43,8 +47,8 @@ public class MainPage extends Application{
 		 HBox hbox = new HBox();
 	        Label label = new Label("(empty)");
 	        Pane pane = new Pane();
-	        Button delete = new Button("(D)");
-	        Button play = new Button("(P)");
+	        Button delete = new Button("D");
+	        Button play = new Button("P");
 	        String lastItem;
 
 	        public Xcell() {
@@ -62,7 +66,7 @@ public class MainPage extends Application{
 	            play.setOnAction(new EventHandler<ActionEvent>() {
 	                @Override
 	                public void handle(ActionEvent event) {
-	                    System.out.println(lastItem + " : " + event);
+	                    play(lastItem);
 	                }
 	            });
 	        }
@@ -82,6 +86,9 @@ public class MainPage extends Application{
 	        }
 	    
 	}
+	
+	private AnchorPane pane = new AnchorPane();
+	
 	private TextField _wikisearch;
 
 	private TextField _creationsearch;
@@ -108,7 +115,11 @@ public class MainPage extends Application{
 	
 	private List<String> f = new ArrayList<String>();
 	
-	private Stage _primary = new Stage();
+	private Stage prime = new Stage();
+	
+	private MediaView MV = new MediaView();
+
+	private Scene s = new Scene(pane,900,400);
 
 	public MainPage(){
 		_wikibutton = new Button("Search");
@@ -129,10 +140,9 @@ public class MainPage extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-
-	//	File dir = new File(System.getProperty("user.dir"));
+		prime = primaryStage;
 		dir.mkdir();
-		AnchorPane pane = new AnchorPane();
+		//AnchorPane pane = new AnchorPane();
 		
 		GridPane grid = new GridPane();
 		grid.setHgap(10);
@@ -202,8 +212,8 @@ public class MainPage extends Application{
 //	    AnchorPane.setRightAnchor(vb, 29.0);
 	  		
 		StackPane p = new StackPane();
-        Scene scene = new Scene(p, 300, 150);
-        primaryStage.setScene(scene);
+    //    Scene scene = new Scene(p, 300, 150);
+     //   primaryStage.setScene(scene);
         
         lvList.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
             @Override
@@ -249,12 +259,19 @@ public class MainPage extends Application{
 //	        root.setSpacing(15);
 //	        root.getChildren().addAll(grid, creationsPane);
 
-       
+		    MV.setLayoutX(460.0);
+		    MV.setLayoutY(100.0);
+			//
+			AnchorPane.setTopAnchor(MV, 135.0);
+		    AnchorPane.setLeftAnchor(MV, 400.0);
+		    AnchorPane.setRightAnchor(MV, 50.0);
 	       
-		pane.getChildren().addAll(grid, p);
-		Scene s = new Scene(pane,450,400);
+	pane.getChildren().addAll(grid, p, MV);
+//		Scene s = new Scene(pane,450,400);
 		s.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(s);
+
+		primaryStage.sizeToScene();
 		primaryStage.show();
 		primaryStage.setTitle("Home");
 		
@@ -349,6 +366,33 @@ public class MainPage extends Application{
 			} catch (Exception e) {
 			} 
 		}
+}
+	
+	private void play(String item){
+		BorderPane bp = new BorderPane();
+		
+		File f = new File(dir, item + ".mp4");
+		Media m = new Media(f.toURI().toString());
+		MediaPlayer mp = new MediaPlayer(m);
+		mp.setAutoPlay(true);
+		MediaView mv = new MediaView(mp);
+		
+		bp.setCenter(mv);
+//		mv.setLayoutX(460.0);
+//		mv.setLayoutY(200.0);
+		//
+		AnchorPane.setTopAnchor(bp, 100.0);
+	    AnchorPane.setLeftAnchor(bp, 500.0);
+	    AnchorPane.setRightAnchor(bp, 50.0);
+		pane.getChildren().add(bp);
+	//	Scene s = new Scene(pane,900,400);
+	//	s.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+	//prime.setScene(s);
+	//	prime.show();
+	//	prime.setTitle("Home");
+		
+		
+		mp.play();
 }
 	public static void main(String[] args) {
 		launch(args);
