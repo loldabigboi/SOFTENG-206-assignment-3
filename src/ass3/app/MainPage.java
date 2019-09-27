@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,9 +40,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.Duration;
 
 public class MainPage extends Application{
 	class Xcell extends ListCell<String>{
@@ -119,7 +123,7 @@ public class MainPage extends Application{
 	
 	private MediaView MV = new MediaView();
 
-	private Scene s = new Scene(pane,900,400);
+	private Scene s = new Scene(pane, 900, 400);
 
 	public MainPage(){
 		_wikibutton = new Button("Search");
@@ -370,6 +374,13 @@ public class MainPage extends Application{
 	
 	private void play(String item){
 		BorderPane bp = new BorderPane();
+		bp.setPrefHeight(350.0);
+		Button mute = new Button("Mute");
+		Button pause = new Button("Pause/Play");
+		Button forward = new Button(">>");
+		Button backward = new Button("<<");
+		
+		
 		
 		File f = new File(dir, item + ".mp4");
 		Media m = new Media(f.toURI().toString());
@@ -377,12 +388,61 @@ public class MainPage extends Application{
 		mp.setAutoPlay(true);
 		MediaView mv = new MediaView(mp);
 		
+		bp.setTop(mute);
+		mute.setPrefWidth(s.getWidth());
+		mute.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent event) {
+				mp.setMute(! mp.isMute());
+			}
+		});
+		
+		bp.setBottom(pause);
+		pause.setPrefWidth(s.getWidth());
+		pause.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent event) {
+				if (mp.getStatus() == Status.PLAYING) {
+					mp.pause();
+				} else {
+					mp.play();
+				}
+			}
+		});
+		
+		bp.setRight(forward);
+		forward.setPrefHeight(s.getHeight());
+		forward.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent event) {
+				mp.seek(mp.getCurrentTime().add(Duration.seconds(2)));
+			}
+		});
+		
+		bp.setLeft(backward);
+		backward.setPrefHeight(s.getHeight());
+		backward.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent event) {
+				mp.seek(mp.getCurrentTime().add(Duration.seconds(-2)));
+			}
+		});
+		
+		mp.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+				String time = "";
+				time += String.format("%02d", (int)newValue.toMinutes());
+				time += ":";
+				time += String.format("%02d", (int)newValue.toSeconds());
+				pause.setText(time);
+			}
+			
+		});
+		
 		bp.setCenter(mv);
 //		mv.setLayoutX(460.0);
 //		mv.setLayoutY(200.0);
 		//
-		AnchorPane.setTopAnchor(bp, 100.0);
-	    AnchorPane.setLeftAnchor(bp, 500.0);
+		AnchorPane.setTopAnchor(bp, 20.0);
+	    AnchorPane.setLeftAnchor(bp, 450.0);
 	    AnchorPane.setRightAnchor(bp, 50.0);
 		pane.getChildren().add(bp);
 	//	Scene s = new Scene(pane,900,400);
