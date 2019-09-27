@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
+<<<<<<< HEAD
 	<name>206Assignment3</name>
+=======
+	<name>softeng206_ass3</name>
+>>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
 	<comment></comment>
 	<projects>
 	</projects>
@@ -10,6 +14,7 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+<<<<<<< HEAD
 		<buildCommand>
 			<name>org.eclipse.xtext.ui.shared.xtextBuilder</name>
 			<arguments>
@@ -18,6 +23,10 @@
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
+=======
+	</buildSpec>
+	<natures>
+>>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
 </projectDescription>
