@@ -1,5 +1,12 @@
 package ass3.app.tasks;
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> ded9d20799729f25f394b4bc2c49fc606e402443
+>>>>>>> 2f7efcb52535772f583cbed2953dafef7e3b5e13
 import java.io.IOException;
 
 import javafx.concurrent.Task;
