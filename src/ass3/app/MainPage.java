@@ -70,7 +70,9 @@ public class MainPage extends Application{
 	            play.setOnAction(new EventHandler<ActionEvent>() {
 	                @Override
 	                public void handle(ActionEvent event) {
+	
 	                    play(lastItem);
+	                    
 	                }
 	            });
 	        }
@@ -121,9 +123,13 @@ public class MainPage extends Application{
 	
 	private Stage prime = new Stage();
 	
-	private MediaView MV = new MediaView();
+	private MediaView MV;
+	
+	private MediaPlayer MP = null;
 
 	private Scene s = new Scene(pane, 900, 400);
+	
+	//private BorderPane bp = new BorderPane();
 
 	public MainPage(){
 		_wikibutton = new Button("Search");
@@ -262,15 +268,15 @@ public class MainPage extends Application{
 //	        root.setPadding(new Insets(10));
 //	        root.setSpacing(15);
 //	        root.getChildren().addAll(grid, creationsPane);
-
-		    MV.setLayoutX(460.0);
-		    MV.setLayoutY(100.0);
-			//
-			AnchorPane.setTopAnchor(MV, 135.0);
-		    AnchorPane.setLeftAnchor(MV, 400.0);
-		    AnchorPane.setRightAnchor(MV, 50.0);
+//
+//		    MV.setLayoutX(460.0);
+//		    MV.setLayoutY(100.0);
+//			//
+//			AnchorPane.setTopAnchor(MV, 135.0);
+//		    AnchorPane.setLeftAnchor(MV, 400.0);
+//		    AnchorPane.setRightAnchor(MV, 50.0);
 	       
-	pane.getChildren().addAll(grid, p, MV);
+	pane.getChildren().addAll(grid, p);
 //		Scene s = new Scene(pane,450,400);
 		s.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(s);
@@ -337,7 +343,7 @@ public class MainPage extends Application{
 						} catch (IOException e) {
 						} 
 					}
-				});	
+				});	 
 	}
 	private void delete(String item){
 
@@ -373,6 +379,9 @@ public class MainPage extends Application{
 }
 	
 	private void play(String item){
+		if(MP != null) {
+		MP.dispose();}
+		//bp.getChildren().remove(m);
 		BorderPane bp = new BorderPane();
 		bp.setPrefHeight(350.0);
 		Button mute = new Button("Mute");
@@ -385,14 +394,17 @@ public class MainPage extends Application{
 		File f = new File(dir, item + ".mp4");
 		Media m = new Media(f.toURI().toString());
 		MediaPlayer mp = new MediaPlayer(m);
-		mp.setAutoPlay(true);
-		MediaView mv = new MediaView(mp);
+		MP = mp;
+		MP.setAutoPlay(true);
+		//mp.setAutoPlay(true);
+		
+		MediaView mv = new MediaView(MP);
 		
 		bp.setTop(mute);
 		mute.setPrefWidth(s.getWidth());
 		mute.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
-				mp.setMute(! mp.isMute());
+				MP.setMute(MP.isMute());
 			}
 		});
 		
@@ -400,10 +412,10 @@ public class MainPage extends Application{
 		pause.setPrefWidth(s.getWidth());
 		pause.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
-				if (mp.getStatus() == Status.PLAYING) {
-					mp.pause();
+				if (MP.getStatus() == Status.PLAYING) {
+					MP.pause();
 				} else {
-					mp.play();
+					MP.play();
 				}
 			}
 		});
@@ -412,7 +424,7 @@ public class MainPage extends Application{
 		forward.setPrefHeight(s.getHeight());
 		forward.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
-				mp.seek(mp.getCurrentTime().add(Duration.seconds(2)));
+				MP.seek(MP.getCurrentTime().add(Duration.seconds(2)));
 			}
 		});
 		
@@ -420,11 +432,11 @@ public class MainPage extends Application{
 		backward.setPrefHeight(s.getHeight());
 		backward.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
-				mp.seek(mp.getCurrentTime().add(Duration.seconds(-2)));
+				MP.seek(MP.getCurrentTime().add(Duration.seconds(-2)));
 			}
 		});
 		
-		mp.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+		MP.currentTimeProperty().addListener(new ChangeListener<Duration>() {
 
 			@Override
 			public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
@@ -452,7 +464,8 @@ public class MainPage extends Application{
 	//	prime.setTitle("Home");
 		
 		
-		mp.play();
+		MP.play();
+
 }
 	public static void main(String[] args) {
 		launch(args);
