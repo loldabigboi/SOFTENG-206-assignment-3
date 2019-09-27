@@ -1,0 +1,1 @@
+1. Usage: $ wikit <query> [-flags]
