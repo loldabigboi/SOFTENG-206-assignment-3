@@ -7,12 +7,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,11 +22,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -37,7 +31,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
@@ -45,21 +38,21 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.collections.ObservableList;
 
 public class MainPage extends Application{
+	//Inside the creation lists
 	class Xcell extends ListCell<String>{
 		HBox hbox = new HBox();
 		Label label = new Label("(empty)");
 		Pane pane = new Pane();
-		Button delete = new Button("D");
-		Button play = new Button("P");
+		Button delete = new Button("Delete");
+		Button play = new Button("Play");
 		String lastItem;
 
 		public Xcell() {
 			super();
 			hbox.setSpacing(5.0);
-			hbox.getChildren().addAll(label, pane, delete, play);
+			hbox.getChildren().addAll(label, pane, play,delete);
 			HBox.setHgrow(pane, Priority.ALWAYS);
 			delete.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
@@ -95,33 +88,23 @@ public class MainPage extends Application{
 	}
 
 	private AnchorPane pane = new AnchorPane();
-
 	private TextField _wikisearch;
-
 	private TextField _creationsearch;
-
 	private Button _wikibutton;
-
 	private Button _creationbutton;
-
 	private Label _wikilable;
-
 	private Label _creationlable;
-
 	private String _txt = null;
-
 	private static File dir = new File(System.getProperty("user.dir"));
-
 	private ListView<String> l = new ListView<String>();
-
 	private List<String> f = new ArrayList<String>();
-
-	private Stage prime = new Stage();
-
 	private MediaPlayer MP = null;
-
 	private Scene s = new Scene(pane, 830, 350);
-
+	private Label t = new Label();
+	private Button mute = new Button("Mute");
+	private Button pause = new Button("Pause");
+	private Button forward = new Button(">>");
+	private Button backward = new Button("<<");
 
 	public MainPage(){
 		_wikibutton = new Button("Search");
@@ -132,16 +115,9 @@ public class MainPage extends Application{
 		_creationsearch = new TextField();
 	}
 
-
-
-
-
-
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		prime = primaryStage;
 		dir.mkdir();
-		//AnchorPane pane = new AnchorPane();
 
 		GridPane grid = new GridPane();
 		grid.setHgap(10);
@@ -178,25 +154,23 @@ public class MainPage extends Application{
 		lvList.setMaxSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
 		l = lvList;
 
-		StackPane p = new StackPane();
-
 		lvList.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
 			@Override
 			public ListCell<String> call(ListView<String> param) {
 				return new Xcell();
 			}
 		});
+
+		StackPane p = new StackPane();
 		p.getChildren().add(lvList);
 		AnchorPane.setTopAnchor(p, 90.0);
-		AnchorPane.setLeftAnchor(p, 23.0);
+		AnchorPane.setLeftAnchor(p, 20.0);
 		AnchorPane.setBottomAnchor(p, 5.0);
-		
 
 		p.setPrefHeight(300.00);
 		p.setPrefWidth(400.00);
 		p.setLayoutX(23.00);
 		p.setLayoutY(147.00);
-
 
 		pane.getChildren().addAll(grid, p);
 		s.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
@@ -204,9 +178,10 @@ public class MainPage extends Application{
 
 		primaryStage.sizeToScene();
 		primaryStage.show();
-		primaryStage.setTitle("Home");
+		primaryStage.setTitle("Home -- Welcome");
 
-		//When click search button
+
+		//When click wiki search button
 		_wikibutton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
 				String inputkey = _wikisearch.getText();
@@ -229,8 +204,6 @@ public class MainPage extends Application{
 					try { 
 						Thread w = new Thread(wiki);
 						w.start();
-						ProgressBar pb = new ProgressBar();
-
 					}
 					catch (Exception e) {
 						e.printStackTrace();
@@ -240,11 +213,10 @@ public class MainPage extends Application{
 		});
 
 
-		//EventAction of delete button
+		//EventAction of creation search button
 		_creationbutton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
 				String input = _creationsearch.getText();
-				System.out.println(input);
 				lvList.getSelectionModel().clearSelection();
 				lvList.getItems().removeAll(fileList);
 				String command = "ls " + dir + "/ | grep .mp4 | grep " + input  + " | sort | cut -d'.' -f1";
@@ -259,15 +231,15 @@ public class MainPage extends Application{
 						fl.add(li);
 					}
 					f = fl;
-					System.out.println(f);
 					lvList.getItems().addAll(fl);	
 				} catch (IOException e) {
 				} 
 			}
 		});	 
 	}
-	private void delete(String item){
 
+	// When click delete button of each creation.
+	private void delete(String item){
 		//pop out the confirmation 
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmate Deletion");
@@ -279,7 +251,7 @@ public class MainPage extends Application{
 			String deleteCommand = "rm -f " + dir + "/" + item + ".mp4";
 			ProcessBuilder dcProcess = new ProcessBuilder("bash", "-c", deleteCommand);
 			try {
-				Process deleteprocess = dcProcess.start();
+				dcProcess.start();
 				//Display the original board again
 				l.getSelectionModel().clearSelection();
 				l.getItems().removeAll(f);
@@ -299,17 +271,18 @@ public class MainPage extends Application{
 		}
 	}
 
+	// When click play button of each creation.
 	private void play(String item){
 		if(MP != null) {
-			MP.dispose();}
-		//bp.getChildren().remove(m);
+			MP.dispose();
+		}
 		BorderPane bp = new BorderPane();
 		bp.setPrefHeight(350.0);
 
-		Button mute = new Button("Mute");
-		Button pause = new Button("Pause");
-		Button forward = new Button(">>");
-		Button backward = new Button("<<");
+//		Button mute = new Button("Mute");
+//		Button pause = new Button("Pause");
+//		Button forward = new Button(">>");
+//		Button backward = new Button("<<");
 		mute.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		pause.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		forward.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -319,9 +292,6 @@ public class MainPage extends Application{
 		forward.setMinWidth(Control.USE_PREF_SIZE);
 		backward.setMinWidth(Control.USE_PREF_SIZE);
 		Label t = new Label();
-
-
-
 
 		File f = new File(dir, item + ".mp4");
 		Media m = new Media(f.toURI().toString());
@@ -361,6 +331,7 @@ public class MainPage extends Application{
 			}
 		});
 
+		//Listener of progress bar and time.
 		ProgressBar pb = new ProgressBar(0.1);
 		MP.currentTimeProperty().addListener(new ChangeListener<Duration>() {
 			@Override
@@ -379,7 +350,6 @@ public class MainPage extends Application{
 		vb.setSpacing(2);
 		vb.setPadding(new Insets(0, 20, 10, 20)); 
 
-
 		vb.getChildren().addAll(pause, backward, forward, pb, t, mute);
 
 		bp.setCenter(mv);
@@ -391,9 +361,8 @@ public class MainPage extends Application{
 		pane.getChildren().add(bp);
 
 		MP.play();
-
-
 	}
+
 	public static void main(String[] args) {
 		launch(args);
 	}
