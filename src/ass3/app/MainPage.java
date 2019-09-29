@@ -120,7 +120,7 @@ public class MainPage extends Application{
 
 	private MediaPlayer MP = null;
 
-	private Scene s = new Scene(pane, 900, 400);
+	private Scene s = new Scene(pane, 830, 350);
 
 
 	public MainPage(){
@@ -187,10 +187,12 @@ public class MainPage extends Application{
 			}
 		});
 		p.getChildren().add(lvList);
-		AnchorPane.setTopAnchor(p, 100.0);
+		AnchorPane.setTopAnchor(p, 90.0);
 		AnchorPane.setLeftAnchor(p, 23.0);
+		AnchorPane.setBottomAnchor(p, 5.0);
+		
 
-		p.setPrefHeight(250.00);
+		p.setPrefHeight(300.00);
 		p.setPrefWidth(400.00);
 		p.setLayoutX(23.00);
 		p.setLayoutY(147.00);
@@ -302,7 +304,7 @@ public class MainPage extends Application{
 			MP.dispose();}
 		//bp.getChildren().remove(m);
 		BorderPane bp = new BorderPane();
-		bp.setPrefHeight(300.0);
+		bp.setPrefHeight(350.0);
 
 		Button mute = new Button("Mute");
 		Button pause = new Button("Pause");
@@ -382,9 +384,10 @@ public class MainPage extends Application{
 
 		bp.setCenter(mv);
 		bp.setBottom(vb);
-		AnchorPane.setTopAnchor(bp, 20.0);
-		AnchorPane.setLeftAnchor(bp, 450.0);
-		AnchorPane.setRightAnchor(bp, 50.0);
+		AnchorPane.setTopAnchor(bp, 0.0);
+		AnchorPane.setLeftAnchor(bp, 430.0);
+		AnchorPane.setRightAnchor(bp, 20.0);
+		AnchorPane.setBottomAnchor(bp, 10.0);
 		pane.getChildren().add(bp);
 
 		MP.play();
