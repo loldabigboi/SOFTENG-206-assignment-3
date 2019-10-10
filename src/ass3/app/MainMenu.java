@@ -86,6 +86,7 @@ public class MainMenu extends Application{
 				@Override
 				public void handle(ActionEvent event) {
 					play(lastItem);
+					pause.setGraphic(new ImageView(imageManager.getImage("mediaPause")));
 				}
 			});
 			
