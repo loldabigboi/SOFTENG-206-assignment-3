@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import ass3.app.listeners.InvalidCharacterChangeListener;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -126,6 +127,7 @@ public class MainMenu extends Application{
 	private List<String> fileList = new ArrayList<String>();
 	
 	private StackPane _mediaViewLayout = new StackPane();
+	private boolean _seekingForwards = false;
 	private MediaView _mediaView = new MediaView();
 	private Scene s = new Scene(_layout, 900, 400);
 	private Label time = new Label();
@@ -179,6 +181,8 @@ public class MainMenu extends Application{
 		_mediaViewLayout.setAlignment(Pos.BOTTOM_CENTER); // to push controls to bottom
 		HBox.setHgrow(_mediaViewLayout, Priority.ALWAYS);
 		_mediaViewLayout.setStyle("-fx-background-color: rgb(200,200,200)");
+		_mediaViewLayout.setMouseTransparent(true);  // only until a video is played
+		_mediaViewLayout.setFocusTraversable(false);  // ^^
 		
 		_mediaViewLayout.getChildren().add(_mediaView);
 		_mediaView.fitWidthProperty().bind(_mediaViewLayout.widthProperty());
@@ -194,7 +198,7 @@ public class MainMenu extends Application{
 		
 		forward.setMinWidth(Control.USE_PREF_SIZE);
 		forward.setStyle("-fx-background-color: rgba(0,0,0,0)");
-		forward.setGraphic(new ImageView(imageManager.getImage("mediaFowards")));
+		forward.setGraphic(new ImageView(imageManager.getImage("mediaForwards")));
 		
 		backward.setMinWidth(Control.USE_PREF_SIZE);
 		backward.setStyle("-fx-background-color: rgba(0,0,0,0)");
@@ -202,15 +206,13 @@ public class MainMenu extends Application{
 		
 		pause.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
-				if (_mediaView.getMediaPlayer() == null) {
-					return;
-				}
 				MediaPlayer MP = _mediaView.getMediaPlayer();
-				if (MP.getStatus() == Status.PLAYING) {
-					pause.setGraphic(new ImageView(imageManager.getImage("mediaPlay")));
+				if (MP.getCurrentTime().equals(MP.getStopTime())) {
+					play(null);  // restart media. using seek() when paused was buggy so this is a hack workaround
+					updatePlaybackControls();
+				} else if (MP.getStatus() == Status.PLAYING) {
 					MP.pause();
 				} else {
-					pause.setGraphic(new ImageView(imageManager.getImage("mediaPause")));
 					MP.play();
 				}
 			}
@@ -218,21 +220,17 @@ public class MainMenu extends Application{
 
 		forward.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
-				if (_mediaView.getMediaPlayer() == null) {
-					return;
-				}
 				MediaPlayer MP = _mediaView.getMediaPlayer();
+				_seekingForwards = true;
 				MP.seek(MP.getCurrentTime().add(Duration.seconds(2)));
 			}
 		});
 
 		backward.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
-				if (_mediaView.getMediaPlayer() == null) {
-					return;
-				}
 				MediaPlayer MP = _mediaView.getMediaPlayer();
 				MP.seek(MP.getCurrentTime().add(Duration.seconds(-2)));
+				updatePlaybackControls();
 			}
 		});
 		
@@ -299,15 +297,17 @@ public class MainMenu extends Application{
 
 		primaryStage.setScene(s);
 		primaryStage.sizeToScene();
-		primaryStage.setResizable(false);
+		//primaryStage.setResizable(false);
 		primaryStage.show();
 		primaryStage.setMinHeight(primaryStage.getHeight());
 		primaryStage.setMinWidth(primaryStage.getWidth());
-		primaryStage.setTitle("Home -- Welcome");
+		primaryStage.setTitle("VARpedia - Main menu");
 		
 		primaryStage.heightProperty().addListener((obsValue, oldValue, newValue) -> {
 			_mediaViewLayout.setPrefHeight(_mediaViewLayout.getPrefHeight() + (double) newValue - (double) oldValue); 
 		});
+		
+		_wikisearch.textProperty().addListener(new InvalidCharacterChangeListener("0123456789abcdefghijklmnopqrstuvwxyz,.- ", _wikisearch));
 		
 		_wikisearch.setOnKeyReleased((e) -> {
 			_wikibutton.setDisable(_wikisearch.getText().length() == 0);
@@ -322,35 +322,22 @@ public class MainMenu extends Application{
 			
 			@Override public void handle(ActionEvent event) {
 				
-				String inputkey = _wikisearch.getText();
-				//check invalid input
-				if(!((inputkey.matches(".*[A-Za-z].*"))|| (inputkey.matches("[0-9]*")))) {
-					
-					Alert alert1 = new Alert(AlertType.WARNING);
-					alert1.setTitle("Invalid input");
-					alert1.setHeaderText("Invalid wiki search term");
-					alert1.setContentText("Please ensure your search term contains only alpha-numerical characters.");
-					alert1.showAndWait();
-					
-				} else {
-					
-					_txt = _wikisearch.getText();
-					Wiki wiki = new Wiki(_txt);
 
-					wiki.setOnSucceeded((e) -> {
-						System.err.close();
-						WikiCreationMenu.createWindow(MainMenu.this, primaryStage, _txt, wiki.getValue());
-					});
+				_txt = _wikisearch.getText();
+				Wiki wiki = new Wiki(_txt);
 
-					try { 
-						Thread w = new Thread(wiki);
-						w.start();
-					}
-					catch (Exception e) {
-						e.printStackTrace();
-					}
-					
+				wiki.setOnSucceeded((e) -> {
+					WikiCreationMenu.createWindow(MainMenu.this, primaryStage, _txt, wiki.getValue());
+				});
+
+				try { 
+					Thread w = new Thread(wiki);
+					w.start();
 				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+					
 			}
 			
 		});
@@ -396,20 +383,30 @@ public class MainMenu extends Application{
 	// When click play button of each creation.
 	private void play(String item){
 		
+		_mediaViewLayout.setMouseTransparent(false);
+		_mediaViewLayout.setFocusTraversable(true);
+		
 		MediaPlayer currPlayer = _mediaView.getMediaPlayer();
 		if (currPlayer != null) {
 			currPlayer.stop();
 		}
 		
-		File file = new File(dir + "/creations/", item + ".mp4");
-		Media media = new Media(file.toURI().toString());
-		MediaPlayer mediaPlayer = new MediaPlayer(media);
-	
+		MediaPlayer mediaPlayer;
+		if (item != null) {
+		
+			File file = new File(dir + "/creations/", item + ".mp4");
+			Media media = new Media(file.toURI().toString());
+			mediaPlayer = new MediaPlayer(media);
+		
+		} else {
+			mediaPlayer = new MediaPlayer(_mediaView.getMediaPlayer().getMedia());
+		}
+			
 		_mediaView.setMediaPlayer(mediaPlayer);
 		mediaPlayer.play();
 				
 		mediaPlayer.currentTimeProperty().addListener((obsValue, oldDuration, newDuration) -> {
-			
+						
 			double totalSeconds = mediaPlayer.getTotalDuration().toSeconds(),
 				   currSeconds = newDuration.toSeconds();
 			
@@ -424,6 +421,16 @@ public class MainMenu extends Application{
 		        absSeconds % 60);
 		    time.setText(formattedTime);
 			
+		});
+		
+		mediaPlayer.statusProperty().addListener((change) -> {
+			updatePlaybackControls();
+		});
+		
+		mediaPlayer.setOnEndOfMedia(() -> {
+			System.out.println("yea");
+			pause.setGraphic(new ImageView(imageManager.getImage("mediaReplay")));	
+			pb.setProgress(1);
 		});
 
 	}
@@ -474,18 +481,36 @@ public class MainMenu extends Application{
 		imageManager.loadImage("search", "resources/search.png", 15, 15);
 		imageManager.loadImage("save", "resources/save.png", 15, 15);
 		imageManager.loadImage("add", "resources/add.png", 15, 15);
-		imageManager.loadImage("shiftDown", "resources/shiftDownIcon.png", 10, 10);
-		imageManager.loadImage("shiftUp", "resources/shiftUpIcon.png", 10, 10);
+		imageManager.loadImage("shiftDown", "resources/shiftDownIcon.png", 9, 7);
+		imageManager.loadImage("shiftUp", "resources/shiftUpIcon.png", 9, 7);
 		
 		// media player icons
-		imageManager.loadImage("mediaPlay", "resources/videoPlayerPlayIcon.png", 25, 25);
-		imageManager.loadImage("mediaPause", "resources/videoPlayerPauseIcon.png", 30, 30);
-		imageManager.loadImage("mediaMuted", "resources/mutedIcon.png", 30, 30);
-		imageManager.loadImage("mediaNotMuted", "resources/unMutedIcon.png", 30, 30);
-		imageManager.loadImage("mediaFowards", "resources/skipFowardsIcon.png", 30, 30);
-		imageManager.loadImage("mediaBackwards", "resources/skipBackwardsIcon.png", 30, 30);
+		imageManager.loadImage("mediaReplay", "resources/mediaPlayerReplay.png", 30, 30);
+		imageManager.loadImage("mediaPlay", "resources/mediaPlayerPlay.png", 30, 30);
+		imageManager.loadImage("mediaPause", "resources/mediaPlayerPause.png", 30, 30);
+		imageManager.loadImage("mediaMuted", "resources/mediaPlayerMuted.png", 30, 30);
+		imageManager.loadImage("mediaNotMuted", "resources/mediaPlayerNotMuted.png", 30, 30);
+		imageManager.loadImage("mediaForwards", "resources/mediaPlayerForwards.png", 30, 30);
+		imageManager.loadImage("mediaBackwards", "resources/mediaPlayerBackwards.png", 30, 30);
 		
 
+		
+	}
+	
+	private void updatePlaybackControls() {
+		
+		Status currStatus = _mediaView.getMediaPlayer().getStatus();
+		if (currStatus == null) {
+			return;
+		}
+		
+		if (currStatus.equals(Status.PLAYING)) {
+			pause.setGraphic(new ImageView(imageManager.getImage("mediaPause")));
+		} else if (currStatus.equals(Status.PAUSED)) {
+			pause.setGraphic(new ImageView(imageManager.getImage("mediaPlay")));
+		} else if (currStatus == Status.STOPPED) {
+			pause.setGraphic(new ImageView(imageManager.getImage("mediaReplay")));
+		}
 		
 	}
 }

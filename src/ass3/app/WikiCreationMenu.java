@@ -381,6 +381,7 @@ public class WikiCreationMenu {
 				progressBar.progressProperty().unbind();
 				progressBar.setProgress(0);
 				Alert alert = new Alert(AlertType.INFORMATION, "Creation '" + creationName + "' created successfully.");
+				alert.setHeaderText("Creation created successfully");
 				alert.show();
 				mainMenu.updateCreationList();
 			});
@@ -437,12 +438,14 @@ public class WikiCreationMenu {
 		rootLayout.getChildren().setAll(menuLayout);
 		
 		Scene scene = new Scene(rootLayout);
+		scene.getStylesheets().add("ass3/app/application.css");
 		
 		Stage window = new Stage();
 		window.initOwner(parentStage);
 		window.setScene(scene);
 		window.sizeToScene();
 		window.show();
+		window.setTitle("VARpedia - Creation menu");
 		window.setMinWidth(window.getWidth());
 		window.setMinHeight(window.getHeight());
 		
@@ -511,7 +514,7 @@ public class WikiCreationMenu {
 			super(8);
 			_listView = listView;
 			setAlignment(Pos.CENTER);
-			setPadding(new Insets(3));
+			setPadding(new Insets(4, 3, 4, 3));
 			
 			nameLabel = new Label(audioFileName);
 			
@@ -531,7 +534,6 @@ public class WikiCreationMenu {
 				currentAudioPreview.play();
 				
 			});
-			playButton.setMinSize(playButton.USE_PREF_SIZE, playButton.USE_PREF_SIZE);
 			
 			deleteButton = new Button();
 			deleteButton.setGraphic(new ImageView(mainMenu.getImageManager().getImage("delete")));
@@ -539,7 +541,7 @@ public class WikiCreationMenu {
 				
 				Alert confirmDialog = new Alert(AlertType.CONFIRMATION);
 				confirmDialog.setHeaderText("Are you sure you want to delete this audio file?");
-				confirmDialog.setContentText("Are you sure you want to delete \"" + audioFileName + "?");
+				confirmDialog.setContentText("Are you sure you want to delete \"" + audioFileName + "\"?");
 				confirmDialog.setTitle("Confirm deletion");
 				
 				Optional<ButtonType> response = confirmDialog.showAndWait();
@@ -558,8 +560,6 @@ public class WikiCreationMenu {
 				}
 				
 			});
-			deleteButton.setOnMouseEntered((e) -> e.consume());
-
 									
 			getChildren().addAll(nameLabel, spacer, playButton, deleteButton);
 			
@@ -625,7 +625,7 @@ public class WikiCreationMenu {
 				_listView.getItems().remove(this);
 			});
 						
-			shiftButtonContainer = new VBox(5);
+			shiftButtonContainer = new VBox(6);
 			shiftUpButton = createShiftButton(-1);
 			shiftDownButton = createShiftButton(1);
 			
@@ -667,9 +667,16 @@ public class WikiCreationMenu {
 			});
 			ImageManager im = mainMenu.getImageManager();
 			shiftButton.setGraphic(new ImageView((dir < 0) ? im.getImage("shiftUp") : im.getImage("shiftDown")));
-			shiftButton.setPadding(new Insets(3, 4, 3, 4));
+			shiftButton.setPadding(new Insets(1, 3, 1, 3));
 			
 			return shiftButton;
+			
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			
+			return o == this;
 			
 		}
 		
