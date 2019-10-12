@@ -4,21 +4,28 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import ass3.app.listeners.InvalidCharacterChangeListener;
+import ass3.app.Wiki.AmbiguousResultsException;
+import ass3.app.Wiki.NoWikiEntryFoundException;
+import ass3.app.listeners.InvalidCharacterChangeListenerWithGraphic;
+
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+
 import javafx.collections.FXCollections;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+
 import javafx.scene.Scene;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -29,23 +36,29 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+
 import javafx.scene.image.ImageView;
+
 import javafx.scene.input.KeyCode;
+
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
+
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
 import javafx.util.Callback;
 import javafx.util.Duration;
 
@@ -110,7 +123,7 @@ public class MainMenu extends Application{
 	
 	public ImageManager imageManager;
 
-	private HBox _layout = new HBox(10);
+	private HBox _layout = new HBox(8);
 	
 	private VBox _creationLayout = new VBox(8);
 	
@@ -129,9 +142,9 @@ public class MainMenu extends Application{
 	private StackPane _mediaViewLayout = new StackPane();
 	private boolean _seekingForwards = false;
 	private MediaView _mediaView = new MediaView();
-	private Scene s = new Scene(_layout, 900, 400);
+	private Scene scene = new Scene(_layout, 900, 400);
 	private Label time = new Label();
-	private ProgressBar pb  = new ProgressBar();
+	private ProgressBar mediaProgressBar  = new ProgressBar();
 	private Button mute = new Button();
 	private Button pause = new Button();
 	private Button forward = new Button();
@@ -180,28 +193,29 @@ public class MainMenu extends Application{
 		
 		_mediaViewLayout.setAlignment(Pos.BOTTOM_CENTER); // to push controls to bottom
 		HBox.setHgrow(_mediaViewLayout, Priority.ALWAYS);
-		_mediaViewLayout.setStyle("-fx-background-color: rgb(200,200,200)");
+		_mediaViewLayout.setStyle("-fx-background-color: black");
 		_mediaViewLayout.setMouseTransparent(true);  // only until a video is played
 		_mediaViewLayout.setFocusTraversable(false);  // ^^
 		
 		_mediaViewLayout.getChildren().add(_mediaView);
+		
 		_mediaView.fitWidthProperty().bind(_mediaViewLayout.widthProperty());
 		_mediaView.fitHeightProperty().bind(_mediaViewLayout.heightProperty());
 
 		mute.setMinWidth(Control.USE_PREF_SIZE);
-		mute.setStyle("-fx-background-color: rgba(0,0,0,0)");
+		mute.setStyle("-fx-background-color: transparent");
 		mute.setGraphic(new ImageView(imageManager.getImage("mediaNotMuted")));
 		
 		pause.setMinWidth(Control.USE_PREF_SIZE);
-		pause.setStyle("-fx-background-color: rgba(0,0,0,0)");
+		pause.setStyle("-fx-background-color: transparent");
 		pause.setGraphic(new ImageView(imageManager.getImage("mediaPlay")));
 		
 		forward.setMinWidth(Control.USE_PREF_SIZE);
-		forward.setStyle("-fx-background-color: rgba(0,0,0,0)");
+		forward.setStyle("-fx-background-color: transparent");
 		forward.setGraphic(new ImageView(imageManager.getImage("mediaForwards")));
 		
 		backward.setMinWidth(Control.USE_PREF_SIZE);
-		backward.setStyle("-fx-background-color: rgba(0,0,0,0)");
+		backward.setStyle("-fx-background-color: transparent");
 		backward.setGraphic(new ImageView(imageManager.getImage("mediaBackwards")));
 		
 		pause.setOnAction(new EventHandler<ActionEvent>() {
@@ -234,13 +248,14 @@ public class MainMenu extends Application{
 			}
 		});
 		
-		time.setText("0:00:00");
 		time.setTextFill(Color.WHITE);
+		time.setFont(new Font(12));
 
 		//Listener of progress bar and time.
-		pb = new ProgressBar(0);
-		pb.setMaxWidth(Double.MAX_VALUE);
-		HBox.setHgrow(pb, Priority.ALWAYS);
+		mediaProgressBar = new ProgressBar(0);
+		mediaProgressBar.setMaxWidth(Double.MAX_VALUE);
+		mediaProgressBar.setPadding(new Insets(0, 10, 0, 10));
+		HBox.setHgrow(mediaProgressBar, Priority.ALWAYS);
 		
 		mute.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
@@ -260,20 +275,25 @@ public class MainMenu extends Application{
 			}
 		});
 		
-		VBox mediaControlsContainer = new VBox();
+		VBox mediaInterfaceContainer = new VBox();
+		
+		Pane interfaceSpacer = new Pane();
+		VBox.setVgrow(interfaceSpacer, Priority.ALWAYS);
+		
 		Pane controlsSpacer = new Pane();
-		VBox.setVgrow(controlsSpacer, Priority.ALWAYS);
+		HBox.setHgrow(controlsSpacer, Priority.ALWAYS);
 
 		HBox mediaControlsLayout = new HBox(5);
 		mediaControlsLayout.setStyle("-fx-background-color: rgba(0,0,0,0.5)");
 		mediaControlsLayout.setMaxWidth(Double.MAX_VALUE);
-		mediaControlsLayout.setAlignment(Pos.CENTER);
-		mediaControlsLayout.getChildren().addAll(pause, backward, forward, time, pb, mute);
+		mediaControlsLayout.setPadding(new Insets(3, 5, 3, 5));
+		mediaControlsLayout.setAlignment(Pos.CENTER_LEFT);
+		mediaControlsLayout.getChildren().addAll(pause, backward, forward, time, controlsSpacer, mute);
 		
-		mediaControlsContainer.getChildren().setAll(controlsSpacer, mediaControlsLayout);
+		mediaInterfaceContainer.getChildren().setAll(interfaceSpacer, mediaProgressBar, mediaControlsLayout);
 		
 		_mediaViewLayout.setAlignment(Pos.CENTER);
-		_mediaViewLayout.getChildren().add(mediaControlsContainer);
+		_mediaViewLayout.getChildren().add(mediaInterfaceContainer);
 				
 		// END MEDIA VIEW
 
@@ -288,14 +308,16 @@ public class MainMenu extends Application{
 		_creationLayout.getChildren().setAll(wikiSearchLayout, horizSeparator, creationSearchLayout, lvList); 
 		
 		Separator vertSeparator = new Separator();
-		vertSeparator.setPadding(new Insets(5));
+		vertSeparator.setPadding(new Insets(0, 4, 0, 0));
 		vertSeparator.setOrientation(Orientation.VERTICAL);
 		
 		_layout.getChildren().setAll(_creationLayout, vertSeparator, _mediaViewLayout);
 		
 		updateCreationList();
+		
+		scene.getStylesheets().add("ass3/app/mainmenu.css");
 
-		primaryStage.setScene(s);
+		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
 		//primaryStage.setResizable(false);
 		primaryStage.show();
@@ -307,7 +329,7 @@ public class MainMenu extends Application{
 			_mediaViewLayout.setPrefHeight(_mediaViewLayout.getPrefHeight() + (double) newValue - (double) oldValue); 
 		});
 		
-		_wikisearch.textProperty().addListener(new InvalidCharacterChangeListener("0123456789abcdefghijklmnopqrstuvwxyz,.- ", _wikisearch));
+		_wikisearch.textProperty().addListener(new InvalidCharacterChangeListenerWithGraphic("0123456789abcdefghijklmnopqrstuvwxyz,.- ", _wikisearch));
 		
 		_wikisearch.setOnKeyReleased((e) -> {
 			_wikibutton.setDisable(_wikisearch.getText().length() == 0);
@@ -328,6 +350,25 @@ public class MainMenu extends Application{
 
 				wiki.setOnSucceeded((e) -> {
 					WikiCreationMenu.createWindow(MainMenu.this, primaryStage, _txt, wiki.getValue());
+				});
+				
+				wiki.setOnFailed((e) -> {
+					
+					String contentText = "An error has occurred, please enter a different search term",
+						   headerText  = "Error";
+					if (wiki.getException() instanceof NoWikiEntryFoundException) {
+						contentText = "No wiki entry found for \"" + _txt + "\". Please enter a different search term.";
+						headerText = "Error: Wiki entry not found";
+					} else if (wiki.getException() instanceof AmbiguousResultsException) {
+						contentText = "Ambiguous results found for \"" + _txt + "\". Please enter a more specific search term.";
+						headerText = "Error: Ambiguous results";
+					}
+					
+					Alert errorDialog = new Alert(AlertType.ERROR, contentText);
+					errorDialog.setHeaderText(headerText);
+					errorDialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+					errorDialog.showAndWait();
+					
 				});
 
 				try { 
@@ -408,18 +449,30 @@ public class MainMenu extends Application{
 		mediaPlayer.currentTimeProperty().addListener((obsValue, oldDuration, newDuration) -> {
 						
 			double totalSeconds = mediaPlayer.getTotalDuration().toSeconds(),
-				   currSeconds = newDuration.toSeconds();
+				   seconds = newDuration.toSeconds();
 			
-			pb.setProgress(currSeconds / totalSeconds);
+			mediaProgressBar.setProgress(seconds / totalSeconds);
 			
-			long seconds = (long) currSeconds;
-		    long absSeconds = Math.abs(seconds);
-		    String formattedTime = String.format(
-		        "%d:%02d:%02d",
-		        absSeconds / 3600,
-		        (absSeconds % 3600) / 60,
-		        absSeconds % 60);
-		    time.setText(formattedTime);
+			int currSeconds = (int) seconds;
+			
+			String formatString = "%d:%02d";
+			if ((((int) totalSeconds) / 60) / 10 > 1) {
+				formatString = "%02d:%02d";
+			}	
+		    
+		    String formattedCurrTime = String.format(
+		        formatString,
+		        currSeconds / 60,
+		        currSeconds % 60
+		    );
+		    
+		    String formattedTotalTime = String.format(
+		    	formatString,
+		    	((int) totalSeconds) / 60,
+		    	((int) totalSeconds) % 60
+		    );
+		    	
+		    time.setText(formattedCurrTime + " / " + formattedTotalTime);
 			
 		});
 		
@@ -430,7 +483,7 @@ public class MainMenu extends Application{
 		mediaPlayer.setOnEndOfMedia(() -> {
 			System.out.println("yea");
 			pause.setGraphic(new ImageView(imageManager.getImage("mediaReplay")));	
-			pb.setProgress(1);
+			mediaProgressBar.setProgress(1);
 		});
 
 	}
@@ -476,6 +529,7 @@ public class MainMenu extends Application{
 		
 		// general button icons
 		imageManager.loadImage("play", "resources/play.png", 15, 15);
+		imageManager.loadImage("stop", "resources/stop.png", 15, 15);
 		imageManager.loadImage("delete", "resources/delete.png", 15, 15);
 		imageManager.loadImage("refresh", "resources/refresh.png", 15, 15);
 		imageManager.loadImage("search", "resources/search.png", 15, 15);
@@ -485,13 +539,13 @@ public class MainMenu extends Application{
 		imageManager.loadImage("shiftUp", "resources/shiftUpIcon.png", 9, 7);
 		
 		// media player icons
-		imageManager.loadImage("mediaReplay", "resources/mediaPlayerReplay.png", 30, 30);
-		imageManager.loadImage("mediaPlay", "resources/mediaPlayerPlay.png", 30, 30);
-		imageManager.loadImage("mediaPause", "resources/mediaPlayerPause.png", 30, 30);
-		imageManager.loadImage("mediaMuted", "resources/mediaPlayerMuted.png", 30, 30);
-		imageManager.loadImage("mediaNotMuted", "resources/mediaPlayerNotMuted.png", 30, 30);
-		imageManager.loadImage("mediaForwards", "resources/mediaPlayerForwards.png", 30, 30);
-		imageManager.loadImage("mediaBackwards", "resources/mediaPlayerBackwards.png", 30, 30);
+		imageManager.loadImage("mediaReplay", "resources/mediaPlayerReplay.png", 12, 15);
+		imageManager.loadImage("mediaPlay", "resources/mediaPlayerPlay.png", 12, 15);
+		imageManager.loadImage("mediaPause", "resources/mediaPlayerPause.png", 12, 15);
+		imageManager.loadImage("mediaMuted", "resources/mediaPlayerMuted.png", 15, 15);
+		imageManager.loadImage("mediaNotMuted", "resources/mediaPlayerNotMuted.png", 15, 15);
+		imageManager.loadImage("mediaForwards", "resources/mediaPlayerForwards.png", 20, 12);
+		imageManager.loadImage("mediaBackwards", "resources/mediaPlayerBackwards.png", 20, 12);
 		
 
 		
