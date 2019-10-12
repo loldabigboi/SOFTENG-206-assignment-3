@@ -1,11 +1,13 @@
 package ass3.app;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -100,7 +102,27 @@ public class GameselectController implements Initializable{
 		if (currPlayer != null) {
 			currPlayer.stop();
 		}
-		String listCommand = "ls " + "creations "+ "| shuf -n 1 | cut -d'.' -f1";
+		String listname = "ls " + "creations " ;
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", listname);
+		try {
+			Process pr = pb.start();
+			BufferedReader a = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+			String name;
+			PrintWriter fw = null;
+			fw = new PrintWriter("users.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			while((name = a.readLine()) != null) {
+		        bw.write(name);
+		        System.out.println(name);
+		        bw.newLine();
+			}		
+		} catch (IOException e1) {
+		}
+		
+		
+		
+		
+		String listCommand = "shuf -n 1 " + dir + "/ users.txt";
 		String listCommand1 = "ls " + "creations "+ "| shuf -z -n 1 | cut -d'.' -f1";
 		String listCommand2 = "ls " + "creations "+ "| shuf -n 1 | cut -d'.' -f1";
 		ProcessBuilder list = new ProcessBuilder("bash", "-c", listCommand);
@@ -114,7 +136,8 @@ public class GameselectController implements Initializable{
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(listprocess.getInputStream()));
 			String line = stdout.readLine();
 			answer1 = line;
-			File file = new File(dir + "/creations/", line + ".mp4");
+			System.out.println(line);
+			File file = new File(dir + "/creations/", line);
 			Media media = new Media(file.toURI().toString());
 			MediaPlayer mediaPlayer = new MediaPlayer(media);
 	
