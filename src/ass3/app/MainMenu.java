@@ -40,7 +40,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 
 import javafx.scene.input.KeyCode;
-
+import javafx.scene.input.MouseEvent;
 import javafx.scene.control.Alert.AlertType;
 
 import javafx.scene.layout.HBox;
@@ -251,11 +251,18 @@ public class MainMenu extends Application{
 		time.setTextFill(Color.WHITE);
 		time.setFont(new Font(12));
 
-		//Listener of progress bar and time.
 		mediaProgressBar = new ProgressBar(0);
 		mediaProgressBar.setMaxWidth(Double.MAX_VALUE);
 		mediaProgressBar.setPadding(new Insets(0, 10, 0, 10));
 		HBox.setHgrow(mediaProgressBar, Priority.ALWAYS);
+		
+		mediaProgressBar.setOnMousePressed((e) -> {			
+			seekOnMouseHeldDown(e);
+		});
+		
+		mediaProgressBar.setOnMouseDragged((e) -> {			
+			seekOnMouseHeldDown(e);            
+	    });
 		
 		mute.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
@@ -473,15 +480,11 @@ public class MainMenu extends Application{
 		    );
 		    	
 		    time.setText(formattedCurrTime + " / " + formattedTotalTime);
-			
-		});
-		
-		mediaPlayer.statusProperty().addListener((change) -> {
-			updatePlaybackControls();
+		    updatePlaybackControls();
+		    
 		});
 		
 		mediaPlayer.setOnEndOfMedia(() -> {
-			System.out.println("yea");
 			pause.setGraphic(new ImageView(imageManager.getImage("mediaReplay")));	
 			mediaProgressBar.setProgress(1);
 		});
@@ -567,4 +570,15 @@ public class MainMenu extends Application{
 		}
 		
 	}
+	
+	private void seekOnMouseHeldDown(MouseEvent e) {
+		
+		MediaPlayer mediaPlayer = _mediaView.getMediaPlayer();
+		double totalSeconds = mediaPlayer.getTotalDuration().toSeconds();
+        double percentageWidth = (((double) e.getX()) / (double) mediaProgressBar.getWidth());
+        double secondsToSeek = percentageWidth * totalSeconds;
+        mediaPlayer.seek(Duration.seconds(secondsToSeek));
+		
+	}
+	
 }
