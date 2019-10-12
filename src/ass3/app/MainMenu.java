@@ -19,7 +19,7 @@ import javafx.collections.FXCollections;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -40,6 +40,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.Alert.AlertType;
 
@@ -140,7 +141,7 @@ public class MainMenu extends Application{
 	private List<String> fileList = new ArrayList<String>();
 	
 	private StackPane _mediaViewLayout = new StackPane();
-	private boolean _seekingForwards = false;
+	private boolean _seeking = false;
 	private MediaView _mediaView = new MediaView();
 	private Scene scene = new Scene(_layout, 900, 400);
 	private Label time = new Label();
@@ -235,7 +236,6 @@ public class MainMenu extends Application{
 		forward.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
 				MediaPlayer MP = _mediaView.getMediaPlayer();
-				_seekingForwards = true;
 				MP.seek(MP.getCurrentTime().add(Duration.seconds(2)));
 			}
 		});
@@ -255,14 +255,6 @@ public class MainMenu extends Application{
 		mediaProgressBar.setMaxWidth(Double.MAX_VALUE);
 		mediaProgressBar.setPadding(new Insets(0, 10, 0, 10));
 		HBox.setHgrow(mediaProgressBar, Priority.ALWAYS);
-		
-		mediaProgressBar.setOnMousePressed((e) -> {			
-			seekOnMouseHeldDown(e);
-		});
-		
-		mediaProgressBar.setOnMouseDragged((e) -> {			
-			seekOnMouseHeldDown(e);            
-	    });
 		
 		mute.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
@@ -301,6 +293,18 @@ public class MainMenu extends Application{
 		
 		_mediaViewLayout.setAlignment(Pos.CENTER);
 		_mediaViewLayout.getChildren().add(mediaInterfaceContainer);
+				
+		_mediaViewLayout.setOnMousePressed((e) -> {
+			handleMouseHeldDownInMediaView(e);
+		});
+		
+		_mediaViewLayout.setOnMouseDragged((e) -> {						
+			handleMouseHeldDownInMediaView(e);
+	    });
+		
+		_mediaViewLayout.setOnMouseReleased((e) -> {
+			_seeking = false;
+		});
 				
 		// END MEDIA VIEW
 
@@ -492,11 +496,12 @@ public class MainMenu extends Application{
 	}
 	
 	public void updateCreationList() {
+		
 		try {
 			
 			String keyword  = _creationsearch.getText();
 			
-			//Get the list of creation
+			// Get the list of creation file names
 			String listCommand = "ls " + dir + "/creations/ | grep mp4 | sort | cut -d'.' -f1";
 			ProcessBuilder list = new ProcessBuilder("bash", "-c", listCommand);
 			Process listprocess = list.start();
@@ -512,10 +517,9 @@ public class MainMenu extends Application{
 			lvList.setItems(FXCollections.observableArrayList(fileList));
 			
 		} catch (IOException e) {
-			
 			e.printStackTrace();
-			
 		}
+		
 	}
 
 	public static void main(String[] args) {
@@ -573,11 +577,48 @@ public class MainMenu extends Application{
 	
 	private void seekOnMouseHeldDown(MouseEvent e) {
 		
+		// get distance of mouse from left of progress bar to the right in terms of its width
+		// then use this percentage to seek to the appropriate position in the media
+		
 		MediaPlayer mediaPlayer = _mediaView.getMediaPlayer();
 		double totalSeconds = mediaPlayer.getTotalDuration().toSeconds();
-        double percentageWidth = (((double) e.getX()) / (double) mediaProgressBar.getWidth());
-        double secondsToSeek = percentageWidth * totalSeconds;
+        double percentageWidth = Math.min(1, (((double) e.getX()) / (double) mediaProgressBar.getWidth()));
+        double secondsToSeek = Math.max(0, percentageWidth * totalSeconds);
         mediaPlayer.seek(Duration.seconds(secondsToSeek));
+		
+	}
+	
+	private void handleMouseHeldDownInMediaView(MouseEvent e) {
+		
+		// done like this instead of adding listener to the progress bar itself to make clicking
+		// and dragging the progress bar more forgiving because the progress bar is thin
+		
+		if (!_seeking) {
+			
+			double tolerance = 7.5;
+						
+			Bounds progressBarBounds = mediaProgressBar.getBoundsInParent();
+			double yDist;
+			if (e.getY() < progressBarBounds.getMinY()) {
+				yDist = progressBarBounds.getMinY() - e.getY();
+			} else if (e.getY() > progressBarBounds.getMaxY()) {
+				yDist = e.getY() - progressBarBounds.getMaxY();
+			} else {
+				yDist = 0;
+			}
+					
+			if (yDist > tolerance) {
+				_seeking = false;
+				return;
+			} else {
+				_seeking = true;
+			}
+			
+		}
+		
+		// mouse within tolerance range for manipulating progress bar
+		// so seek progress bar
+		seekOnMouseHeldDown(e);
 		
 	}
 	
