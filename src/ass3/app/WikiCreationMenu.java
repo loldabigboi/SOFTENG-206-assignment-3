@@ -318,7 +318,7 @@ public class WikiCreationMenu {
 			
 		// CREATION MENU LAYOUT //
 		
-		VBox creationLayout = new VBox(10);
+		VBox creationLayout = new VBox(8);
 		
 		creationLayout.setMinWidth(500);
 		creationLayout.setPrefWidth(500);
@@ -345,6 +345,17 @@ public class WikiCreationMenu {
 		}
 		ComboBox<Integer> numImagesDropdown = new ComboBox<>(numImagesOptions);
 		numImagesDropdown.getSelectionModel().selectFirst();
+		
+		ObservableList<String> musicOptions = FXCollections.observableArrayList(
+			"None",
+			"Lav - Standing on the edge (Ambient Rock).mp3",
+			"Loveshadow - These Tears (Sadness) (Electronic).mp3",
+			"Panumoon - Another perspective (Light Jazz).mp3"
+		);
+		ComboBox<String> musicDropdown = new ComboBox<>(musicOptions);
+		musicDropdown.getSelectionModel().selectFirst();
+		musicDropdown.setMaxWidth(Double.MAX_VALUE);
+		HBox.setHgrow(musicDropdown, Priority.ALWAYS);
 		
 		Button saveCreationButton = new Button();
 		saveCreationButton.setGraphic(new ImageView(mainMenu.getImageManager().getImage("save")));
@@ -441,10 +452,15 @@ public class WikiCreationMenu {
 		
 		});
 		
-		HBox saveLayout = new HBox(10);
-		saveLayout.getChildren().setAll(creationNameField, numImagesDropdown, saveCreationButton);
+		HBox nameImagesLayout = new HBox(8);
+		nameImagesLayout.getChildren().setAll(creationNameField, new Label("# of images in slideshow:"), numImagesDropdown);
+		nameImagesLayout.setAlignment(Pos.CENTER);
 		
-		creationLayout.getChildren().setAll(creationAudioFileListView, saveLayout);
+		HBox musicSaveLayout = new HBox(8);
+		musicSaveLayout.getChildren().setAll(new Label("Music:"), musicDropdown, saveCreationButton);
+		musicSaveLayout.setAlignment(Pos.CENTER);
+		
+		creationLayout.getChildren().setAll(creationAudioFileListView, nameImagesLayout, musicSaveLayout);
 				
 		// END CREATION MENU LAYOUT //
 		
@@ -461,7 +477,7 @@ public class WikiCreationMenu {
 		window.setTitle("VARpedia - Creation menu");
 		window.setMinWidth(window.getWidth());
 		window.setMinHeight(window.getHeight());
-		
+				
 	}
 	
 	private static void updateAudioFileList() {

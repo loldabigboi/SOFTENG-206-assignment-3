@@ -44,7 +44,7 @@ public class InvalidCharacterChangeListenerWithGraphic extends InvalidCharacterC
 	    }
 	    _currentTooltip = new Tooltip();
 	    _currentTooltip.setText("Valid characters: \"0123456789abcdefghijklmnopqrstuvwxyz ,\".");
-	    //_currentTooltip.setAutoHide(true);
+	    _currentTooltip.setAutoHide(true);
 	    
 	    // generate size of tooltip
 	    Stage tempStage = new Stage();
@@ -60,8 +60,6 @@ public class InvalidCharacterChangeListenerWithGraphic extends InvalidCharacterC
 	    _currentTooltip.show(owner, p.getX() + scene.getX() + scene.getWindow().getX() + _textInput.getWidth()/2 - _currentTooltip.getWidth()/2,
 	    									   scene.getY() + scene.getWindow().getY() + _textInput.getHeight());
 	    
-	    System.out.println(owner);
-
 	}
 
 }

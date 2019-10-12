@@ -2,6 +2,8 @@ package ass3.app;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -148,7 +150,6 @@ public class MainMenu extends Application{
 	private ProgressBar mediaProgressBar  = new ProgressBar();
 	private Button mute = new Button();
 	private Button pause = new Button();
-	private Button forward = new Button();
 	private Button backward = new Button();
 
 	public MainMenu(){
@@ -190,7 +191,7 @@ public class MainMenu extends Application{
 		creationSearchLayout.setAlignment(Pos.CENTER);
 		creationSearchLayout.getChildren().addAll(_creationlable, _creationsearch, _creationbutton);
 		
-		// MEDIA VIEW
+		// MEDIA VIEW LAYOUT
 		
 		_mediaViewLayout.setAlignment(Pos.BOTTOM_CENTER); // to push controls to bottom
 		HBox.setHgrow(_mediaViewLayout, Priority.ALWAYS);
@@ -211,11 +212,8 @@ public class MainMenu extends Application{
 		pause.setStyle("-fx-background-color: transparent");
 		pause.setGraphic(new ImageView(imageManager.getImage("mediaPlay")));
 		
-		forward.setMinWidth(Control.USE_PREF_SIZE);
-		forward.setStyle("-fx-background-color: transparent");
-		forward.setGraphic(new ImageView(imageManager.getImage("mediaForwards")));
-		
 		backward.setMinWidth(Control.USE_PREF_SIZE);
+		backward.setPadding(new Insets(0, 15, 0, 7));
 		backward.setStyle("-fx-background-color: transparent");
 		backward.setGraphic(new ImageView(imageManager.getImage("mediaBackwards")));
 		
@@ -233,27 +231,25 @@ public class MainMenu extends Application{
 			}
 		});
 
-		forward.setOnAction(new EventHandler<ActionEvent>() {
-			@Override public void handle(ActionEvent event) {
-				MediaPlayer MP = _mediaView.getMediaPlayer();
-				MP.seek(MP.getCurrentTime().add(Duration.seconds(2)));
-			}
-		});
-
 		backward.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent event) {
 				MediaPlayer MP = _mediaView.getMediaPlayer();
-				MP.seek(MP.getCurrentTime().add(Duration.seconds(-2)));
-				updatePlaybackControls();
+				MP.seek(Duration.ZERO);
 			}
 		});
 		
 		time.setTextFill(Color.WHITE);
-		time.setFont(new Font(12));
+	    try { 
+	        final Font f = Font.loadFont(new FileInputStream(new File("src/ass3/app/resources/Roboto-Regular.ttf")), 12);
+	        time.setFont(f);
+	    } catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    }
 
 		mediaProgressBar = new ProgressBar(0);
 		mediaProgressBar.setMaxWidth(Double.MAX_VALUE);
 		mediaProgressBar.setPadding(new Insets(0, 10, 0, 10));
+		mediaProgressBar.setMouseTransparent(true);  // because the media view layout handles the progress bar's events
 		HBox.setHgrow(mediaProgressBar, Priority.ALWAYS);
 		
 		mute.setOnAction(new EventHandler<ActionEvent>() {
@@ -282,12 +278,12 @@ public class MainMenu extends Application{
 		Pane controlsSpacer = new Pane();
 		HBox.setHgrow(controlsSpacer, Priority.ALWAYS);
 
-		HBox mediaControlsLayout = new HBox(5);
+		HBox mediaControlsLayout = new HBox();
 		mediaControlsLayout.setStyle("-fx-background-color: rgba(0,0,0,0.5)");
 		mediaControlsLayout.setMaxWidth(Double.MAX_VALUE);
 		mediaControlsLayout.setPadding(new Insets(3, 5, 3, 5));
-		mediaControlsLayout.setAlignment(Pos.CENTER_LEFT);
-		mediaControlsLayout.getChildren().addAll(pause, backward, forward, time, controlsSpacer, mute);
+		mediaControlsLayout.setAlignment(Pos.CENTER);
+		mediaControlsLayout.getChildren().addAll(pause, backward, time, controlsSpacer, mute);
 		
 		mediaInterfaceContainer.getChildren().setAll(interfaceSpacer, mediaProgressBar, mediaControlsLayout);
 		
@@ -306,8 +302,8 @@ public class MainMenu extends Application{
 			_seeking = false;
 		});
 				
-		// END MEDIA VIEW
-
+		// END MEDIA VIEW LAYOUT
+		
 		lvList.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
 			@Override
 			public ListCell<String> call(ListView<String> param) {
@@ -349,11 +345,11 @@ public class MainMenu extends Application{
 			}
 		});
 
-
-		//When click wiki search button
 		_wikibutton.setOnAction(new EventHandler<ActionEvent>() {
 			
 			@Override public void handle(ActionEvent event) {
+				
+				_wikibutton.setDisable(true);
 				
 
 				_txt = _wikisearch.getText();
@@ -361,6 +357,7 @@ public class MainMenu extends Application{
 
 				wiki.setOnSucceeded((e) -> {
 					WikiCreationMenu.createWindow(MainMenu.this, primaryStage, _txt, wiki.getValue());
+					_wikibutton.setDisable(false);
 				});
 				
 				wiki.setOnFailed((e) -> {
@@ -379,6 +376,7 @@ public class MainMenu extends Application{
 					errorDialog.setHeaderText(headerText);
 					errorDialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
 					errorDialog.showAndWait();
+					_wikibutton.setDisable(false);
 					
 				});
 
@@ -488,6 +486,10 @@ public class MainMenu extends Application{
 		    
 		});
 		
+		mediaPlayer.statusProperty().addListener((c) -> {
+			updatePlaybackControls();
+		});
+		
 		mediaPlayer.setOnEndOfMedia(() -> {
 			pause.setGraphic(new ImageView(imageManager.getImage("mediaReplay")));	
 			mediaProgressBar.setProgress(1);
@@ -546,13 +548,12 @@ public class MainMenu extends Application{
 		imageManager.loadImage("shiftUp", "resources/shiftUpIcon.png", 9, 7);
 		
 		// media player icons
-		imageManager.loadImage("mediaReplay", "resources/mediaPlayerReplay.png", 12, 15);
-		imageManager.loadImage("mediaPlay", "resources/mediaPlayerPlay.png", 12, 15);
-		imageManager.loadImage("mediaPause", "resources/mediaPlayerPause.png", 12, 15);
+		imageManager.loadImage("mediaReplay", "resources/mediaPlayerReplay.png", 15, 15);
+		imageManager.loadImage("mediaPlay", "resources/mediaPlayerPlay.png", 15, 15);
+		imageManager.loadImage("mediaPause", "resources/mediaPlayerPause.png", 15, 15);
 		imageManager.loadImage("mediaMuted", "resources/mediaPlayerMuted.png", 15, 15);
 		imageManager.loadImage("mediaNotMuted", "resources/mediaPlayerNotMuted.png", 15, 15);
-		imageManager.loadImage("mediaForwards", "resources/mediaPlayerForwards.png", 20, 12);
-		imageManager.loadImage("mediaBackwards", "resources/mediaPlayerBackwards.png", 20, 12);
+		imageManager.loadImage("mediaBackwards", "resources/mediaPlayerBackwards.png", 13, 13);
 		
 
 		
@@ -606,7 +607,7 @@ public class MainMenu extends Application{
 			} else {
 				yDist = 0;
 			}
-					
+								
 			if (yDist > tolerance) {
 				_seeking = false;
 				return;
