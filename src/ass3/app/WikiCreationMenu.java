@@ -389,9 +389,11 @@ public class WikiCreationMenu {
 				audioFilePaths.add("audio/" + cell.getAudioFileName());
 			}
 			
+			String musicFile = musicDropdown.getSelectionModel().getSelectedItem();
+			
 			int numImages = numImagesDropdown.getSelectionModel().getSelectedItem();
 			
-			Task<Void> createCreationTask = new CreateCreationTask(creationName, audioFilePaths, wikiTerm, numImages);
+			Task<Void> createCreationTask = new CreateCreationTask(creationName, audioFilePaths, wikiTerm, musicFile, numImages);
 			progressLabel.textProperty().bind(createCreationTask.messageProperty());
 			progressBar.progressProperty().bind(createCreationTask.progressProperty());
 			
@@ -403,6 +405,10 @@ public class WikiCreationMenu {
 				alert.setHeaderText("Creation created successfully");
 				alert.show();
 				mainMenu.updateCreationList();
+			});
+			
+			createCreationTask.setOnFailed((e_) -> {
+				createCreationTask.getException().printStackTrace();
 			});
 			
 			Service<Void> creationService = new Service<Void>() {

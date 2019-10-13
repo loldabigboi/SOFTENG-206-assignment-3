@@ -1,5 +1,2 @@
-file 'audio/yet.wav'
-file 'audio/yet.wav'
-file 'audio/a.wav'
-file 'audio/a.wav'
+file 'audio/vsd.wav'
 

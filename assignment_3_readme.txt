@@ -1,6 +1,10 @@
 # SOFTENG-206-assignment-3
 Assignment 3 for SOFTENG 206
 
+TARGET AUDIENCE
+------------
+18-25 year olds with English second language
+
 INTRODUCTION
 ------------
 Run this program in the VirtualBox image. The program is supposed to search for the input key words by using wiki, the search text is prepared for users to edit. User also can preview the text by highlighting the

@@ -311,8 +311,13 @@ public class MainMenu extends Application{
 			}
 		});
 		
+		HBox quizButtonLayout = new HBox();
+		Pane spacer = new Pane();
+		HBox.setHgrow(spacer, Priority.ALWAYS);
+		quizButtonLayout.getChildren().setAll(spacer, new Button("Generate quiz.."));
+		
 		_creationLayout.setPadding(new Insets(8));
-		_creationLayout.getChildren().setAll(wikiSearchLayout, horizSeparator, creationSearchLayout, lvList); 
+		_creationLayout.getChildren().setAll(wikiSearchLayout, horizSeparator, creationSearchLayout, lvList, quizButtonLayout); 
 		
 		Separator vertSeparator = new Separator();
 		vertSeparator.setPadding(new Insets(0, 4, 0, 0));
@@ -417,7 +422,10 @@ public class MainMenu extends Application{
 		Optional<ButtonType> result = alert.showAndWait();
 		if(result.get() == ButtonType.OK) {
 			
-			String deleteCommand = "rm -f " + dir + "/creations/" + item + ".mp4";
+			String deleteCommand = "rm -f '" + dir + "/creations/" + item + ".mp4' '" + 
+									 	       dir + "/creation_audios/" + item + ".wav' '" + 
+									 	       dir + "/slideshows/" + item + ".mp4' '" + 
+									 	       dir + "/search_terms/" + item + ".txt'";
 			ProcessBuilder dcProcess = new ProcessBuilder("bash", "-c", deleteCommand);
 			try {
 				dcProcess.start();
