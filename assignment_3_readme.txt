@@ -1,6 +1,10 @@
 # SOFTENG-206-assignment-3
 Assignment 3 for SOFTENG 206
 
+TARGET AUDIENCE
+------------
+18-25 year olds with English second language
+
 INTRODUCTION
 ------------
 Run this program in the VirtualBox image. The program is supposed to search for the input key words by using wiki, the search text is prepared for users to edit. User also can preview the text by highlighting the
@@ -20,6 +24,8 @@ The home page has two search engines, two buttons and a list of creations. Users
 After clicking the wiki search button, the creation manu pops out if the input key word is valid. Within the text area, user can edit the output text and highlight to preview, more synthetic speech settings are available. After entering the audio file name, the created audio file will appear at the right hand side list. Then change the order of audios the user wants to play in the final vedio, input the number of images they want and give a name to the creation, they the creation is successfully created and can be viewed on the home page!
 
 
-
-
-
+ATTRIBUTIONS:
+------------
+Panumoon - Another perspective: retrieved from http://ccmixter.org/files/panumoon/60396, licensed according to https://creativecommons.org/licenses/by-nc/3.0/
+Lav - Standing on the edge: retrieved from http://ccmixter.org/files/Lav/60292, licensed according to https://creativecommons.org/licenses/by-nc/3.0/
+Loveshadow - These Tears (Sadness): retrieved from http://ccmixter.org/files/Loveshadow/60190, licensed according to https://creativecommons.org/licenses/by-nc-sa/3.0/
