@@ -1,2 +1,0 @@
-file 'audio/g.wav'
-
