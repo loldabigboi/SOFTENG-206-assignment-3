@@ -2,9 +2,13 @@ package ass3.app;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.ResourceBundle;
 import ass3.app.Wiki;
 import javafx.event.ActionEvent;
@@ -56,62 +60,73 @@ public class GamemanualController implements Initializable{
 	private String answer3;
 	
 	public void ClickCheck(ActionEvent e) throws IOException{
-		this.one.setText("Correct Answer: " + answer1);
-		this.two.setText("Correct Answer: " + answer2);
-		this.three.setText("Correct Answer: " + answer3);
-		//add correction images
+		if((vediotwo.getText() != null) && (vedioone.getText().toString()).equals(answer1)) {
+			this.one.setText("Correct Answer: " + answer1+ "\n Your answer is correct");
+		}else {
+			this.one.setText("Correct Answer: " + answer1+ "\n Your answer is wrong");
+		}
+		
+		if((vediotwo.getText() != null)&&(vediotwo.getText().toString()).equals(answer2)){
+			this.two.setText("Correct Answer: " + answer2+ "\n Your answer is correct");
+		}else {
+			this.two.setText("Correct Answer: " + answer2+ "\n Your answer is wrong");
+		}
+		if((vediothree.getText() != null) && (vediothree.getText().toString()).equals(answer3)){
+			this.three.setText("Correct Answer: " + answer3+ "\n Your answer is correct");
+		}else {
+			this.three.setText("Correct Answer: " + answer3+ "\n Your answer is wrong");
+		}
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		MediaPlayer currPlayer = v1.getMediaPlayer();
-		if (currPlayer != null) {
-			currPlayer.stop();
-		}
-		String listCommand = "ls " + "creations "+ "| shuf -n 1 | cut -d'.' -f1";
-		String listCommand1 = "ls " + "creations "+ "| shuf -z -n 1 | cut -d'.' -f1";
-		String listCommand2 = "ls " + "creations "+ "| shuf -n 1 | cut -d'.' -f1";
+		
+		String listCommand = "ls " + "creations "+ "| cut -d'.' -f1";
 		ProcessBuilder list = new ProcessBuilder("bash", "-c", listCommand);
-		ProcessBuilder list2 = new ProcessBuilder("bash", "-c", listCommand1);
-		ProcessBuilder list3 = new ProcessBuilder("bash", "-c", listCommand2);
 		Process listprocess;
-		Process listprocess2;
-		Process listprocess3;
 		try {
 			listprocess = list.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(listprocess.getInputStream()));
-			String line = stdout.readLine();
-			answer1 = line;
-			File file = new File(dir + "/creations/", line + ".mp4");
+			List<String> l = new ArrayList<>();
+			String line;
+			while ((line = stdout.readLine())!= null) {
+			l.add(line);
+			}
+			
+				
+			
+			Random random = new Random();
+			String name = l.get(random.nextInt(l.size()));
+			File file = new File(dir + "/creations/", name + ".mp4");
+			BufferedReader reader = new BufferedReader(new FileReader(new File(dir + "/search_terms/", name + ".txt")));
+			answer1 = reader.readLine();
 			Media media = new Media(file.toURI().toString());
 			MediaPlayer mediaPlayer = new MediaPlayer(media);
-	
 			v1.setMediaPlayer(mediaPlayer);
 			mediaPlayer.play();
+			l.remove(name);
 			
-			
-			listprocess2 = list2.start();
-			BufferedReader stdout2 = new BufferedReader(new InputStreamReader(listprocess2.getInputStream()));
-			String line2 = stdout2.readLine();
-			File file2 = new File(dir + "/creations/", line2 + ".mp4");
-			answer2 = line2;
+			String name2 = l.get(random.nextInt(l.size()));
+			File file2 = new File(dir + "/creations/", name2 + ".mp4");
+			BufferedReader reader2 = new BufferedReader(new FileReader(new File(dir + "/search_terms/", name2 + ".txt")));
+			answer2 = reader2.readLine();
 			Media media2 = new Media(file2.toURI().toString());
 			MediaPlayer mediaPlayer2 = new MediaPlayer(media2);
-	
 			v2.setMediaPlayer(mediaPlayer2);
 			mediaPlayer2.play();
+			l.remove(name2);
 			
-			listprocess3 = list3.start();
-			BufferedReader stdout3 = new BufferedReader(new InputStreamReader(listprocess3.getInputStream()));
-			String line3 = stdout3.readLine();
-			answer3 = line3;
-			File file3 = new File(dir + "/creations/", line3 + ".mp4");
+			String name3 = l.get(random.nextInt(l.size()));
+			File file3 = new File(dir + "/creations/", name3 + ".mp4");
+			BufferedReader reader3 = new BufferedReader(new FileReader(new File(dir + "/search_terms/", name3 + ".txt")));
+			answer3 = reader3.readLine();
 			Media media3 = new Media(file3.toURI().toString());
 			MediaPlayer mediaPlayer3 = new MediaPlayer(media3);
 	
 			v3.setMediaPlayer(mediaPlayer3);
 			mediaPlayer3.play();
+			l.remove(name3);
 		} catch (IOException e) {
-		}		
+		}
 	}
 }

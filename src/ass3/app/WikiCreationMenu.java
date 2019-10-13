@@ -17,6 +17,9 @@ import java.util.Optional;
 import ass3.app.tasks.CreateAudioFileTask;
 import ass3.app.tasks.CreateAudioFileTask.Synthesiser;
 import ass3.app.tasks.CreateCreationTask;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -58,6 +61,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -67,16 +71,20 @@ public class WikiCreationMenu {
 	
 	private static ListView<AudioFileHBoxCell> audioFileListView = new ListView<>();
 	private static ListView<AudioFileHBoxCell> creationAudioFileListView = new ListView<>();
-	private static MediaPlayer currentAudioPreview = null;	
+	
+	private static MediaPlayer currentAudioPreview = null;
+	private static ObjectProperty<AudioFileHBoxCell> ownerOfAudioPreview = new SimpleObjectProperty<>(null);
+	
 	private static MainMenu mainMenu;
 	
 	public static void createWindow(MainMenu mainMenu, Stage parentStage, String wikiTerm, String wikiText) {
 		
 		WikiCreationMenu.mainMenu = mainMenu;
+		Stage window = new Stage();
 				
 		// DELETE PRE-EXISTING AUDIO FILES
 		
-		String cmd = "rm audio/*";
+		String cmd = "rm temp/audio/*";
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", cmd);
 		try {
 			pb.start().waitFor();
@@ -258,7 +266,7 @@ public class WikiCreationMenu {
 			// check if file with specified name exists
 			try {
 				
-				ProcessBuilder builder = new ProcessBuilder("test", "-e", "audio/" + audioNameField.getText() + ".wav");
+				ProcessBuilder builder = new ProcessBuilder("test", "-e", "temp/audio/" + audioNameField.getText() + ".wav");
 				int fileExists = builder.start().waitFor();
 								
 				if (fileExists == 0) {
@@ -367,12 +375,12 @@ public class WikiCreationMenu {
 			
 			List<String> audioFilePaths = new ArrayList<String>();
 			for (AudioFileHBoxCell cell : creationAudioFileListView.getItems()) {
-				audioFilePaths.add(cell.getAudioFileName());
+				audioFilePaths.add("audio/" + cell.getAudioFileName());
 			}
 			
 			int numImages = numImagesDropdown.getSelectionModel().getSelectedItem();
 			
-			Task<String> createCreationTask = new CreateCreationTask("creations/" + creationName + ".mp4", audioFilePaths, wikiTerm, numImages);
+			Task<Void> createCreationTask = new CreateCreationTask(creationName, audioFilePaths, wikiTerm, numImages);
 			progressLabel.textProperty().bind(createCreationTask.messageProperty());
 			progressBar.progressProperty().bind(createCreationTask.progressProperty());
 			
@@ -381,20 +389,27 @@ public class WikiCreationMenu {
 				progressBar.progressProperty().unbind();
 				progressBar.setProgress(0);
 				Alert alert = new Alert(AlertType.INFORMATION, "Creation '" + creationName + "' created successfully.");
+				alert.setHeaderText("Creation created successfully");
 				alert.show();
 				mainMenu.updateCreationList();
 			});
 			
-			Service<String> creationService = new Service<String>() {
+			Service<Void> creationService = new Service<Void>() {
 				
 				@Override
-				public Task<String> createTask() {
+				public Task<Void> createTask() {
 					return createCreationTask;
 				}
 				
 			};
 			
 			creationService.start();
+			
+			window.setOnCloseRequest((e_) -> {
+				creationService.cancel();
+			});
+			
+			
 			
 			
 		});
@@ -437,12 +452,13 @@ public class WikiCreationMenu {
 		rootLayout.getChildren().setAll(menuLayout);
 		
 		Scene scene = new Scene(rootLayout);
+		scene.getStylesheets().add("ass3/app/wikicreationmenu.css");
 		
-		Stage window = new Stage();
 		window.initOwner(parentStage);
 		window.setScene(scene);
 		window.sizeToScene();
 		window.show();
+		window.setTitle("VARpedia - Creation menu");
 		window.setMinWidth(window.getWidth());
 		window.setMinHeight(window.getHeight());
 		
@@ -450,7 +466,7 @@ public class WikiCreationMenu {
 	
 	private static void updateAudioFileList() {
 				
-		String cmd = "ls audio/ | grep \".wav\"";
+		String cmd = "ls temp/audio/ | grep \".wav\"";
 		try {
 			
 			ProcessBuilder builder = new ProcessBuilder("bash", "-c", cmd);
@@ -511,7 +527,7 @@ public class WikiCreationMenu {
 			super(8);
 			_listView = listView;
 			setAlignment(Pos.CENTER);
-			setPadding(new Insets(3));
+			setPadding(new Insets(4, 3, 4, 3));
 			
 			nameLabel = new Label(audioFileName);
 			
@@ -522,16 +538,34 @@ public class WikiCreationMenu {
 			playButton.setGraphic(new ImageView(mainMenu.getImageManager().getImage("play")));
 			playButton.setOnAction((e) -> {
 				
+				AudioFileHBoxCell currentOwner = ownerOfAudioPreview.getValue();
+				
 				if (currentAudioPreview != null) {
 					currentAudioPreview.stop();
 				}
 				
-				Media audio = new Media(new File("audio", audioFileName).toURI().toString());
-				currentAudioPreview = new MediaPlayer(audio);
-				currentAudioPreview.play();
+				if (currentOwner == this) {
+					stopPlayback();
+				} else {
+					
+					if (currentOwner != null) {
+						currentOwner.stopPlayback();
+					}
+					
+					playButton.setGraphic(new ImageView(mainMenu.getImageManager().getImage("stop")));
+					Media audio = new Media(new File("temp/audio", audioFileName).toURI().toString());
+					currentAudioPreview = new MediaPlayer(audio);
+					currentAudioPreview.play();
+					ownerOfAudioPreview.setValue(this);
+					
+					currentAudioPreview.setOnEndOfMedia(() -> {
+						stopPlayback();
+					});
+					
+				}
 				
 			});
-			playButton.setMinSize(playButton.USE_PREF_SIZE, playButton.USE_PREF_SIZE);
+			
 			
 			deleteButton = new Button();
 			deleteButton.setGraphic(new ImageView(mainMenu.getImageManager().getImage("delete")));
@@ -539,7 +573,7 @@ public class WikiCreationMenu {
 				
 				Alert confirmDialog = new Alert(AlertType.CONFIRMATION);
 				confirmDialog.setHeaderText("Are you sure you want to delete this audio file?");
-				confirmDialog.setContentText("Are you sure you want to delete \"" + audioFileName + "?");
+				confirmDialog.setContentText("Are you sure you want to delete \"" + audioFileName + "\"?");
 				confirmDialog.setTitle("Confirm deletion");
 				
 				Optional<ButtonType> response = confirmDialog.showAndWait();
@@ -549,8 +583,13 @@ public class WikiCreationMenu {
 				
 				try {
 					
-					ProcessBuilder pb = new ProcessBuilder("rm", "audio/" + audioFileName);
+					ProcessBuilder pb = new ProcessBuilder("rm", "temp/audio/" + audioFileName);
 					pb.start().waitFor();
+					
+					if (ownerOfAudioPreview.getValue() == this) {
+						stopPlayback();
+					}
+
 					updateAudioFileList();
 					
 				} catch (InterruptedException | IOException ex) {
@@ -558,10 +597,16 @@ public class WikiCreationMenu {
 				}
 				
 			});
-			deleteButton.setOnMouseEntered((e) -> e.consume());
-
 									
 			getChildren().addAll(nameLabel, spacer, playButton, deleteButton);
+			
+		}
+		
+		public void stopPlayback() {
+			
+			playButton.setGraphic(new ImageView(mainMenu.getImageManager().getImage("play")));
+			ownerOfAudioPreview.setValue(null);
+			currentAudioPreview.stop();
 			
 		}
 		
@@ -625,7 +670,7 @@ public class WikiCreationMenu {
 				_listView.getItems().remove(this);
 			});
 						
-			shiftButtonContainer = new VBox(5);
+			shiftButtonContainer = new VBox(6);
 			shiftUpButton = createShiftButton(-1);
 			shiftDownButton = createShiftButton(1);
 			
@@ -667,9 +712,16 @@ public class WikiCreationMenu {
 			});
 			ImageManager im = mainMenu.getImageManager();
 			shiftButton.setGraphic(new ImageView((dir < 0) ? im.getImage("shiftUp") : im.getImage("shiftDown")));
-			shiftButton.setPadding(new Insets(3, 4, 3, 4));
+			shiftButton.setPadding(new Insets(0, 3, 0, 3));
 			
 			return shiftButton;
+			
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			
+			return o == this;
 			
 		}
 		

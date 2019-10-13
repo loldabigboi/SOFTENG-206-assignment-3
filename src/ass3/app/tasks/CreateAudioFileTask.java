@@ -94,7 +94,7 @@ public class CreateAudioFileTask extends Task<String> {
 		if (_name == null) {
 			dir = "temp";
 		} else {
-			dir = "audio";
+			dir = "temp/audio";
 		}
 		
 		String filePath = dir + "/" + ( ( _name == null ) ? "temp" : _name ) + ".wav";
