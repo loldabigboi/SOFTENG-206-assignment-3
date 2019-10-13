@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ass3.app.GameSessionHomeController">
+   <children>
+      <VBox layoutX="54.0" layoutY="28.0" prefHeight="200.0" prefWidth="498.0">
+         <children>
+            <Label fx:id="title" prefHeight="16.0" prefWidth="327.0" text="Matching Game">
+               <font>
+                  <Font size="31.0" />
+               </font>
+            </Label>
+            <RadioButton fx:id="manual" mnemonicParsing="false" text="Type answer">
+               <VBox.margin>
+                  <Insets top="40.0" />
+               </VBox.margin>
+            </RadioButton>
+            <RadioButton fx:id="select" mnemonicParsing="false" text="Select answer">
+               <VBox.margin>
+                  <Insets top="60.0" />
+               </VBox.margin>
+            </RadioButton>
+         </children>
+      </VBox>
+      <Button fx:id="generate" layoutX="230.0" layoutY="294.0" mnemonicParsing="false" onAction="#ClickButton" prefHeight="52.0" prefWidth="144.0" text="Generate Quiz" />
+   </children>
+</AnchorPane>

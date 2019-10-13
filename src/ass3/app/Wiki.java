@@ -55,4 +55,3 @@ class Wiki extends Task<String>{
 	}
 	
 }
-
