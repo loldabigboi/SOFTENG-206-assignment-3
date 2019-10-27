@@ -1,0 +1,141 @@
+.root {
+	-fx-font-family: 'Roboto';
+	-fx-font-size: 14;
+	-fx-background-color: rgb(247,247,247);
+}
+
+.text-field {
+	-fx-font-size: 13;
+	-fx-padding: 4;
+	-fx-border-color: rgb(200,200,200);
+	-fx-border-radius: 2;
+}
+
+.text-field:focus {
+	-fx-border-color: #3689ff;
+}
+
+#media-slider .thumb {
+	-fx-pref-height: 14px;
+	-fx-pref-width: 14px;
+	-fx-background-color: #579dff;
+}
+
+#media-slider .track {
+	-fx-background-color: transparent;
+	-fx-padding: 3;
+}
+
+#media-progress-bar {
+	-fx-accent: #579dff;
+}
+
+#media-progress-bar .track {
+	-fx-background-color: white;
+	-fx-background-radius: 2px;
+}
+
+#media-progress-bar .bar {
+	-fx-background-insets: 0;
+    -fx-padding: 0.10em;
+}
+
+.blue-button {
+	-fx-background-color: #579dff;
+	-fx-text-fill: white;
+}
+
+.blue-button:hover {
+	-fx-cursor: hand;
+	-fx-background-color: #3689ff;
+}
+
+.blue-button:pressed {
+	-fx-cursor: hand;
+	-fx-background-color: #2a73db;
+}
+
+.green-button {
+
+	-fx-background-color: #30bf56;
+	-fx-text-fill: white;
+
+}
+
+.green-button:hover {
+	-fx-background-color: #54c244;
+	-fx-cursor: hand;
+
+}
+
+.green-button:pressed {
+
+	-fx-background-color: #45b336;
+	-fx-cursor: hand;
+
+}
+
+.plain-graphic-button {
+
+	-fx-background-color: rgb(255,255,255);
+	-fx-border-radius: 2px;
+	-fx-border-color: rgb(200,200,200);
+	
+
+}
+
+.plain-graphic-button:hover {
+
+	-fx-background-color: rgba(0, 0, 0, 0.15);
+	-fx-cursor: hand;
+
+}
+
+.plain-graphic-button:pressed {
+
+	-fx-background-color: rgba(0, 0, 0, 0.2);
+
+}
+
+.plain-text-button {
+
+	-fx-background-color: rgba(0, 0, 0, 0.15);
+
+}
+
+.plain-text-button:hover {
+
+	-fx-background-color: rgba(0, 0, 0, 0.2);
+	-fx-cursor: hand;
+
+}
+
+.plain-text-button:pressed {
+
+	-fx-background-color: rgba(0, 0, 0, 0.3);
+
+}
+
+.heading1 {
+	-fx-font-size: 24px;
+}
+
+.heading2 {
+	-fx-font-size: 18px;
+}
+
+.heading3 {
+	-fx-font-size: 16px;
+}
+
+.heading4 {
+	-fx-font-size: 15px;
+}
+
+.combo-box {
+	-fx-background-color: rgb(245,245,245);
+	-fx-border-radius: 2px;
+	-fx-border-color: rgb(200,200,200);
+}
+
+
