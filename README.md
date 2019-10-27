@@ -1,12 +1,2 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-# SOFTENG-206-assignment-3
-Assignment 3 for SOFTENG 206
-=======
-# Wikispeaker
-uoa softeng 206 project
->>>>>>> 993d2eeb5079672a81462f2998d50eb0dad19030
-=======
-# wikispeaker
-uoa softeng project
->>>>>>> cf8b8929931bd8ea62736599eb4080d20664e3ed
+# SOFTENG-206-project
+Project for SOFTENG 206, created by Yuxin Chen and Jackson Ayling-Campbell
